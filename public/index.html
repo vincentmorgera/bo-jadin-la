@@ -1,44 +1,120 @@
-i<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bò Jadin La - Dépendance de charme à Marie-Galante</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bò Jadin La · Dépendance de charme à Marie-Galante</title>
+<meta name="description" content="Dépendance climatisée de 16 m² avec terrasse privée à Grand-Bourg, Marie-Galante. À deux pas de l'Habitation Murat et de la plage. Superhôtes, note 4,87/5.">
+<meta property="og:title" content="Bò Jadin La · Marie-Galante">
+<meta property="og:image" content="https://a0.muscache.com/im/pictures/hosting/Hosting-1686923054634848912/original/718fc521-5262-4415-a176-0e37ae9764f6.jpeg?im_w=1200">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <header>
+<nav class="nav" id="nav">
+  <a class="logo" href="#top">Bò Jadin La</a>
+  <div class="links">
+    <a href="#logement">Le logement</a>
+    <a href="#galerie">Photos</a>
+    <a href="#disponibilites">Disponibilités</a>
+    <a href="#avis">Avis</a>
+    <a class="pill" href="#disponibilites">Réserver</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <img src="https://a0.muscache.com/im/pictures/hosting/Hosting-1686923054634848912/original/718fc521-5262-4415-a176-0e37ae9764f6.jpeg?im_w=1600" alt="Bò Jadin La, dépendance à Grand-Bourg">
+  <div class="hero-inner">
+    <span class="badge">★ 4,87 · Superhôtes · Coup de cœur voyageurs</span>
     <h1>Bò Jadin La</h1>
-    <p>Votre havre de paix à Grand-Bourg, Marie-Galante</p>
-  </header>
+    <p>Votre petit nid tropical à Grand-Bourg, Marie-Galante</p>
+    <div class="cta">
+      <a class="btn" href="#disponibilites">Voir les disponibilités</a>
+      <a class="btn ghost" href="#galerie">Découvrir en photos</a>
+    </div>
+  </div>
+</header>
 
-  <main>
-    <section class="card">
-      <h2>Le Logement</h2>
-      <p>Bienvenue à Bò Jadin La, une charmante dépendance de 16 m² avec terrasse privative, idéalement située à Grand-Bourg. Profitez d'un cadre verdoyant et paisible, à deux pas de la mer et de l'Habitation Murat.</p>
-      
-      <div class="features" style="margin-top: 2rem;">
-        <div class="feature-item">🌴 Terrasse privée & Jardin</div>
-        <div class="feature-item">❄️ Climatisation</div>
-        <div class="feature-item">☕ Coin petit-déjeuner autonome</div>
-        <div class="feature-item">🚿 Douche à l'italienne</div>
+<section class="stats reveal">
+  <div><b>16 m²</b><span>dépendance rénovée</span></div>
+  <div><b>15 m²</b><span>terrasse privée</span></div>
+  <div><b>&lt; 1 km</b><span>plage &amp; Habitation Murat</span></div>
+  <div><b>100 %</b><span>réponse en moins d'1 h</span></div>
+</section>
+
+<section class="wrap split reveal" id="logement">
+  <div>
+    <p class="eyebrow">Le logement</p>
+    <h2>Calme, lumineux et tout confort</h2>
+    <p>Une dépendance fraîchement rénovée avec chambre climatisée (lit double 160), salle d'eau attenante avec douche à l'italienne, WC indépendant et grande terrasse de 15 m² au milieu d'un jardin verdoyant.</p>
+    <p>À moins d'1 km de l'Habitation Murat et de la plage du Bourg, et à moins de 2 km du centre de Grand-Bourg. Vos hôtes Gwen et Vincent vivent à proximité, mais votre intimité est préservée.</p>
+    <p class="note">🐾 Un chien et des chats vivent dans la propriété.</p>
+  </div>
+  <ul class="amenities">
+    <li>🌴 Terrasse privée de 15 m²</li>
+    <li>❄️ Climatisation</li>
+    <li>🛏️ Lit double 160 cm</li>
+    <li>🚿 Douche à l'italienne</li>
+    <li>☕ Coin petit-déjeuner<small>minibar, bouilloire, machine à café</small></li>
+    <li>📶 Wifi &amp; espace de travail</li>
+    <li>🔒 Serrure sur la chambre</li>
+    <li>🚽 WC indépendant</li>
+  </ul>
+</section>
+
+<section class="wrap reveal" id="galerie">
+  <p class="eyebrow">Galerie</p>
+  <h2>Un aperçu des lieux</h2>
+  <div class="gallery" id="gallery"></div>
+</section>
+
+<section class="wrap reveal" id="disponibilites">
+  <p class="eyebrow">Calendrier en direct</p>
+  <h2>Disponibilités</h2>
+  <p class="sub">Synchronisé avec Airbnb. Cliquez sur votre date d'arrivée puis de départ pour vérifier votre séjour.</p>
+  <div class="cal-card">
+    <div class="cal-top">
+      <div id="next-free" class="next-free">Chargement…</div>
+      <div class="nav-btns">
+        <button id="prev" aria-label="Mois précédent">‹</button>
+        <button id="next" aria-label="Mois suivant">›</button>
       </div>
-    </section>
+    </div>
+    <div class="months" id="months"></div>
+    <div class="legend">
+      <span><i class="dot free"></i>Disponible</span>
+      <span><i class="dot booked"></i>Occupé</span>
+      <span><i class="dot sel"></i>Votre sélection</span>
+    </div>
+    <div class="result" id="result" hidden></div>
+    <p class="updated" id="updated"></p>
+  </div>
+</section>
 
-    <section class="card">
-      <h2>Disponibilités en Direct</h2>
-      <p>Consultez les prochaines périodes réservées et planifiez votre séjour en direct.</p>
-      <div id="calendar-status">Chargement des disponibilités...</div>
-      
-      <a href="#contact" class="btn-book">Réserver en direct (Économisez les frais de plateforme)</a>
-    </section>
-  </main>
+<section class="wrap reveal" id="avis">
+  <p class="eyebrow">Avis voyageurs</p>
+  <h2>★ 4,87 <small>· 15 commentaires</small></h2>
+  <div class="tags"><span>Calme</span><span>Hospitalité</span><span>Emplacement</span><span>Décoration</span><span>Propreté</span></div>
+  <div class="scores" id="scores"></div>
+</section>
 
-  <footer>
-    <p>&copy; 2026 Bò Jadin La - Grand-Bourg, Marie-Galante. Tous droits réservés.</p>
-  </footer>
+<section class="wrap reveal">
+  <div class="host">
+    <h2>Réservez en direct</h2>
+    <p>Vous préférez échanger avec nous ? Écrivez-nous pour réserver sans frais de plateforme.</p>
+    <div class="cta">
+      <a class="btn" id="mail" href="mailto:VOTRE@EMAIL.COM?subject=Réservation Bò Jadin La">Nous écrire</a>
+      <a class="btn ghost light" href="https://www.airbnb.fr/rooms/1686923054634848912" target="_blank" rel="noopener">Voir l'annonce Airbnb</a>
+    </div>
+  </div>
+</section>
 
-  <script src="app.js"></script>
+<footer>© 2026 Bò Jadin La · Grand-Bourg, Marie-Galante · Guadeloupe</footer>
+
+<div class="lightbox" id="lb" hidden><button id="lb-x" aria-label="Fermer">×</button><img alt=""></div>
+<script src="app.js"></script>
 </body>
 </html>

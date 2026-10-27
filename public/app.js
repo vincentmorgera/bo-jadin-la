@@ -1,27 +1,101 @@
-document.addEventListener("DOMContentLoaded", async () => {
-  const statusDiv = document.getElementById("calendar-status");
+const ROOM = "1686923054634848912";
+const IMG = id => `https://a0.muscache.com/im/pictures/hosting/Hosting-${ROOM}/original/${id}.jpeg`;
+const PHOTOS = [
+  "718fc521-5262-4415-a176-0e37ae9764f6","be2f0949-106f-4b0c-8c58-094e90593194",
+  "e0ce3f29-8ed8-4df3-8444-9ca042246536","2d50f27e-dbe5-4679-bae5-621b7b6b9300",
+  "7098b582-772d-45fb-b38d-9bc18be25dbd"
+];
+const SCORES = [["Propreté",4.9],["Précision",4.8],["Arrivée",4.8],["Communication",4.9],["Emplacement",4.8],["Qualité-prix",4.7]];
 
-  try {
-    const response = await fetch('/api/calendar');
-    const data = await response.json();
+/* Nav, reveal */
+const nav = document.getElementById("nav");
+const onScroll = () => nav.classList.toggle("solid", scrollY > 60);
+addEventListener("scroll", onScroll, {passive:true}); onScroll();
+const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add("in")), {threshold:.1});
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
 
-    if (data.success && data.bookedDates.length > 0) {
-      let html = '<strong>Prochaines périodes occupées :</strong><ul style="margin-top: 0.5rem; padding-left: 1.2rem;">';
-      
-      // Trier et afficher les 5 prochaines réservations
-      data.bookedDates.slice(0, 5).forEach(booking => {
-        const start = new Date(booking.start).toLocaleDateString('fr-FR');
-        const end = new Date(booking.end).toLocaleDateString('fr-FR');
-        html += `<li>Du ${start} au ${end}</li>`;
-      });
-      
-      html += '</ul>';
-      statusDiv.innerHTML = html;
-    } else {
-      statusDiv.innerHTML = '✨ <strong>Bonne nouvelle !</strong> Le calendrier semble grand ouvert pour vos prochaines dates.';
-    }
-  } catch (error) {
-    statusDiv.innerHTML = 'Impossible de charger le calendrier pour le moment.';
-    console.error(error);
-  }
+/* Galerie + lightbox */
+const lb = document.getElementById("lb"), lbImg = lb.querySelector("img");
+document.getElementById("gallery").innerHTML = PHOTOS.map((p,i) =>
+  `<img loading="lazy" src="${IMG(p)}?im_w=${i?600:1000}" data-full="${IMG(p)}?im_w=1600" alt="Bò Jadin La, photo ${i+1}">`).join("");
+document.getElementById("gallery").addEventListener("click", e => {
+  if (e.target.dataset.full) { lbImg.src = e.target.dataset.full; lb.hidden = false; }
 });
+lb.addEventListener("click", () => lb.hidden = true);
+addEventListener("keydown", e => e.key === "Escape" && (lb.hidden = true));
+
+/* Notes */
+document.getElementById("scores").innerHTML = SCORES.map(([n,v]) =>
+  `<div class="score"><span>${n}</span><div class="bar"><i style="width:${v/5*100}%"></i></div><b>${String(v).replace(".",",")}</b></div>`).join("");
+
+/* Calendrier */
+const pad = n => String(n).padStart(2,"0");
+const key = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y,m-1,d); };
+const addDays = (d,n) => new Date(d.getFullYear(), d.getMonth(), d.getDate()+n);
+const fmt = (s,o={day:"numeric",month:"short"}) => parse(s).toLocaleDateString("fr-FR",o);
+const todayKey = key(new Date());
+
+const busy = new Set();            // nuits occupées (clé = jour de la nuit)
+let view = new Date(); view.setDate(1);
+let a = null, b = null;
+
+const nightsFree = (from, to) => { for (let d = parse(from); key(d) < to; d = addDays(d,1)) if (busy.has(key(d))) return false; return true; };
+
+function renderMonth(first) {
+  const days = new Date(first.getFullYear(), first.getMonth()+1, 0).getDate();
+  const off = (first.getDay()+6)%7;
+  let h = `<div class="month"><h3>${first.toLocaleDateString("fr-FR",{month:"long",year:"numeric"})}</h3><div class="grid">`;
+  h += ["L","M","M","J","V","S","D"].map(x => `<div class="wd">${x}</div>`).join("");
+  h += '<div class="empty"></div>'.repeat(off);
+  for (let i = 1; i <= days; i++) {
+    const d = new Date(first.getFullYear(), first.getMonth(), i), k = key(d);
+    const c = ["d"];
+    if (k < todayKey) c.push("past");
+    else if (busy.has(k)) { c.push("booked"); if (a && !b && k > a) c.push("end-ok"); }
+    if (k === todayKey) c.push("today");
+    if (k === a || k === b) c.push("sel");
+    else if (a && b && k > a && k < b) c.push("range");
+    h += `<button class="${c.join(" ")}" data-k="${k}">${i}</button>`;
+  }
+  return h + "</div></div>";
+}
+
+function render() {
+  const m2 = new Date(view.getFullYear(), view.getMonth()+1, 1);
+  document.getElementById("months").innerHTML = renderMonth(view) + renderMonth(m2);
+  const r = document.getElementById("result");
+  if (a && b) {
+    const n = Math.round((parse(b)-parse(a))/864e5);
+    const url = `https://www.airbnb.fr/rooms/${ROOM}?check_in=${a}&check_out=${b}&adults=1`;
+    r.className = "result"; r.hidden = false;
+    r.innerHTML = `<span>✅ <b>${fmt(a)} → ${fmt(b)}</b> · ${n} nuit${n>1?"s":""} disponible${n>1?"s":""}</span><a class="btn" href="${url}" target="_blank" rel="noopener">Réserver sur Airbnb</a>`;
+  } else if (a) {
+    r.className = "result"; r.hidden = false;
+    r.innerHTML = `<span>Arrivée le <b>${fmt(a)}</b>. Choisissez maintenant votre date de départ.</span>`;
+  } else r.hidden = true;
+}
+
+document.getElementById("months").addEventListener("click", e => {
+  const k = e.target.dataset.k; if (!k) return;
+  const isBusy = busy.has(k);
+  if (!a || (a && b)) { if (isBusy) return; a = k; b = null; }
+  else if (k <= a) { if (isBusy) return; a = k; }
+  else if (nightsFree(a, k)) b = k;
+  else { const r = document.getElementById("result"); r.hidden = false; r.className = "result bad";
+         r.innerHTML = "<span>Cette période contient des nuits occupées. Essayez d'autres dates.</span>"; a = isBusy ? null : k; b = null; return; }
+  render();
+});
+document.getElementById("prev").onclick = () => { view = new Date(view.getFullYear(), view.getMonth()-1, 1); render(); };
+document.getElementById("next").onclick = () => { view = new Date(view.getFullYear(), view.getMonth()+1, 1); render(); };
+
+fetch("data/bookings.json", {cache:"no-cache"}).then(r => r.json()).then(data => {
+  (data.bookings || []).forEach(({start, end}) => {
+    for (let d = parse(start); key(d) < end; d = addDays(d,1)) busy.add(key(d));
+  });
+  let d = parse(todayKey), n = 0;
+  while (busy.has(key(d)) && n++ < 730) d = addDays(d,1);
+  document.getElementById("next-free").textContent = key(d) === todayKey ? "✨ Disponible dès aujourd'hui" : `Prochaine nuit libre : ${fmt(key(d),{weekday:"long",day:"numeric",month:"long"})}`;
+  if (data.updated) document.getElementById("updated").textContent = "Mis à jour le " + new Date(data.updated).toLocaleString("fr-FR",{dateStyle:"medium",timeStyle:"short"});
+  render();
+}).catch(() => { document.getElementById("next-free").textContent = "Calendrier indisponible, consultez Airbnb"; render(); });

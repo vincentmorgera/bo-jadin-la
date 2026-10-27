@@ -1,0 +1,21 @@
+name: Synchroniser le calendrier Airbnb
+on:
+  schedule: [{ cron: "0 */3 * * *" }]   # toutes les 3 h
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node scripts/update-calendar.mjs
+        env:
+          AIRBNB_ICAL_URL: ${{ secrets.AIRBNB_ICAL_URL }}
+      - run: |
+          git config user.name "calendar-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/bookings.json
+          git diff --staged --quiet || (git commit -m "maj calendrier" && git push)
