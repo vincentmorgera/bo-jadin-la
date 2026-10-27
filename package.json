@@ -1,0 +1,23 @@
+{
+  "name": "bo-jadin-la",
+  "version": "1.0.0",
+  "description": "Site vitrine et réservations directes pour Bò Jadin La",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vincentmorgera/bo-jadin-la.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vincentmorgera/bo-jadin-la/issues"
+  },
+  "homepage": "https://github.com/vincentmorgera/bo-jadin-la#readme",
+  "dependencies": {
+    "node-ical": "^0.27.3"
+  }
+}
