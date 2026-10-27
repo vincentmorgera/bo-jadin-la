@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bò Jadin La · Dépendance de charme à Marie-Galante</title>
-<meta name="description" content="Dépendance climatisée de 16 m² avec terrasse privée à Grand-Bourg, Marie-Galante. À deux pas de l'Habitation Murat et de la plage. Superhôtes, note 4,87/5.">
+<meta name="description" content="Dépendance climatisée de 16 m² avec terrasse privée à Grand-Bourg, Marie-Galante. À deux pas de l'Habitation Murat et de la plage. ">
 <meta property="og:title" content="Bò Jadin La · Marie-Galante">
 <meta property="og:image" content="images/1.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,7 +28,7 @@
 <header class="hero" id="top">
   <img src="images/1.png" alt="Bò Jadin La, dépendance à Grand-Bourg">
   <div class="hero-inner">
-    <span class="badge">★ 4,87 · Superhôtes · Coup de cœur voyageurs</span>
+    <span class="badge" id="badge"></span>
     <h1>Bò Jadin La</h1>
     <p>Votre petit nid tropical à Grand-Bourg, Marie-Galante</p>
     <div class="cta">
@@ -42,7 +42,7 @@
   <div><b>16 m²</b><span>dépendance rénovée</span></div>
   <div><b>15 m²</b><span>terrasse privée</span></div>
   <div><b>&lt; 1 km</b><span>plage &amp; Habitation Murat</span></div>
-  <div><b>100 %</b><span>réponse en moins d'1 h</span></div>
+  <div><b>160 cm</b><span>lit double climatisé</span></div>
 </section>
 
 <section class="wrap split reveal" id="logement">
@@ -74,7 +74,7 @@
 <section class="wrap reveal" id="disponibilites">
   <p class="eyebrow">Calendrier en direct</p>
   <h2>Disponibilités</h2>
-  <p class="sub">Synchronisé avec Airbnb. Cliquez sur votre date d'arrivée puis de départ pour vérifier votre séjour.</p>
+  <p class="sub">Synchronisé en direct. Choisissez votre date d'arrivée puis de départ, puis envoyez-nous votre demande en un clic.</p>
   <div class="cal-card">
     <div class="cal-top">
       <div id="next-free" class="next-free">Chargement…</div>
@@ -94,20 +94,27 @@
   </div>
 </section>
 
-<section class="wrap reveal" id="avis">
+<section class="wrap reveal" id="avis" hidden>
   <p class="eyebrow">Avis voyageurs</p>
-  <h2>★ 4,87 <small>· 15 commentaires</small></h2>
-  <div class="tags"><span>Calme</span><span>Hospitalité</span><span>Emplacement</span><span>Décoration</span><span>Propreté</span></div>
+  <h2 id="rating-h"></h2>
+  <div class="tags" id="tags"></div>
+  <div class="quotes" id="quotes"></div>
   <div class="scores" id="scores"></div>
+  <p class="updated" id="rev-updated"></p>
 </section>
 
 <section class="wrap reveal">
+  <div class="why">
+    <div><b>💸 Sans frais de plateforme</b><span>Le prix que vous voyez est celui que vous payez.</span></div>
+    <div><b>💬 Échange direct</b><span>Vous parlez directement avec Gwen et Vincent, vos hôtes.</span></div>
+    <div><b>🤝 Réservation confirmée sous 24 h</b><span>Nous validons ensemble les dates et les modalités.</span></div>
+  </div>
   <div class="host">
-    <h2>Réservez en direct</h2>
-    <p>Vous préférez échanger avec nous ? Écrivez-nous pour réserver sans frais de plateforme.</p>
+    <h2>Une question avant de réserver ?</h2>
+    <p>Écrivez-nous, nous répondons en général dans l'heure.</p>
     <div class="cta">
-      <a class="btn" id="mail" href="mailto:VOTRE@EMAIL.COM?subject=Réservation Bò Jadin La">Nous écrire</a>
-      <a class="btn ghost light" href="https://www.airbnb.fr/rooms/1686923054634848912" target="_blank" rel="noopener">Voir l'annonce Airbnb</a>
+      <a class="btn" id="wa" href="#">WhatsApp</a>
+      <a class="btn ghost" id="mail" href="#">E-mail</a>
     </div>
   </div>
 </section>

@@ -1,7 +1,13 @@
+/* ====== À PERSONNALISER ====== */
+const CONTACT = {
+  whatsapp: "590XXXXXXXXX",        // numéro international sans + ni espaces (ex : 590690123456)
+  email: "VOTRE@EMAIL.COM",
+  pricePerNight: null              // ex : 85 pour afficher une estimation, ou null pour la masquer
+};
+/* ============================== */
 const ROOM = "1686923054634848912";
 const EXT = "png"; // changez en "jpg" ou "webp" si vous convertissez vos photos
 const PHOTOS = [1,2,3,4,5].map(n => `images/${n}.${EXT}`);
-const SCORES = [["Propreté",4.9],["Précision",4.8],["Arrivée",4.8],["Communication",4.9],["Emplacement",4.8],["Qualité-prix",4.7]];
 
 /* Nav, reveal */
 const nav = document.getElementById("nav");
@@ -20,9 +26,21 @@ document.getElementById("gallery").addEventListener("click", e => {
 lb.addEventListener("click", () => lb.hidden = true);
 addEventListener("keydown", e => e.key === "Escape" && (lb.hidden = true));
 
-/* Notes */
-document.getElementById("scores").innerHTML = SCORES.map(([n,v]) =>
-  `<div class="score"><span>${n}</span><div class="bar"><i style="width:${v/5*100}%"></i></div><b>${String(v).replace(".",",")}</b></div>`).join("");
+/* Avis (données dans data/reviews.json) */
+const esc = t => String(t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fr = v => String(v).replace(".", ",");
+fetch("data/reviews.json", {cache:"no-cache"}).then(r => r.json()).then(r => {
+  if (r.badge) document.getElementById("badge").textContent = r.badge;
+  if (!r.rating && !(r.testimonials || []).length) return;
+  document.getElementById("avis").hidden = false;
+  if (r.rating) document.getElementById("rating-h").innerHTML = `★ ${fr(r.rating)} <small>· ${r.count} commentaire${r.count>1?"s":""} sur Airbnb</small>`;
+  document.getElementById("tags").innerHTML = (r.tags || []).map(t => `<span>${esc(t)}</span>`).join("");
+  document.getElementById("quotes").innerHTML = (r.testimonials || []).map(t =>
+    `<blockquote>“${esc(t.text)}”<cite>${esc(t.author)}${t.date ? " · " + esc(t.date) : ""}</cite></blockquote>`).join("");
+  document.getElementById("scores").innerHTML = (r.scores || []).map(([n,v]) =>
+    `<div class="score"><span>${esc(n)}</span><div class="bar"><i style="width:${v/5*100}%"></i></div><b>${fr(v)}</b></div>`).join("");
+  if (r.updated) document.getElementById("rev-updated").textContent = "Notes Airbnb relevées le " + new Date(r.updated).toLocaleDateString("fr-FR",{dateStyle:"long"});
+}).catch(() => {});
 
 /* Calendrier */
 const pad = n => String(n).padStart(2,"0");
@@ -63,9 +81,14 @@ function render() {
   const r = document.getElementById("result");
   if (a && b) {
     const n = Math.round((parse(b)-parse(a))/864e5);
-    const url = `https://www.airbnb.fr/rooms/${ROOM}?check_in=${a}&check_out=${b}&adults=1`;
-    r.className = "result"; r.hidden = false;
-    r.innerHTML = `<span>✅ <b>${fmt(a)} → ${fmt(b)}</b> · ${n} nuit${n>1?"s":""} disponible${n>1?"s":""}</span><a class="btn" href="${url}" target="_blank" rel="noopener">Réserver sur Airbnb</a>`;
+    const est = CONTACT.pricePerNight ? ` · environ <b>${n*CONTACT.pricePerNight} €</b>` : "";
+    r.className = "result col"; r.hidden = false;
+    r.innerHTML = `<div class="ok">✅ <b>${fmt(a)} → ${fmt(b)}</b> · ${n} nuit${n>1?"s":""} disponible${n>1?"s":""}${est}</div>
+      <div class="fields"><input id="f-name" placeholder="Votre prénom" autocomplete="given-name">
+      <select id="f-guests"><option>1 voyageur</option><option>2 voyageurs</option></select></div>
+      <div class="actions"><button class="btn" data-send="wa">Demander via WhatsApp</button>
+      <button class="btn alt" data-send="mail">Demander par e-mail</button></div>
+      <a class="airbnb-link" href="https://www.airbnb.fr/rooms/${ROOM}?check_in=${a}&check_out=${b}&adults=1" target="_blank" rel="noopener">ou réserver via Airbnb</a>`;
   } else if (a) {
     r.className = "result"; r.hidden = false;
     r.innerHTML = `<span>Arrivée le <b>${fmt(a)}</b>. Choisissez maintenant votre date de départ.</span>`;
@@ -85,13 +108,27 @@ document.getElementById("months").addEventListener("click", e => {
 document.getElementById("prev").onclick = () => { view = new Date(view.getFullYear(), view.getMonth()-1, 1); render(); };
 document.getElementById("next").onclick = () => { view = new Date(view.getFullYear(), view.getMonth()+1, 1); render(); };
 
-fetch("data/bookings.json", {cache:"no-cache"}).then(r => r.json()).then(data => {
-  (data.bookings || []).forEach(({start, end}) => {
+document.getElementById("result").addEventListener("click", e => {
+  const t = e.target.dataset.send; if (!t) return;
+  const name = document.getElementById("f-name").value.trim();
+  const guests = document.getElementById("f-guests").value;
+  const n = Math.round((parse(b)-parse(a))/864e5);
+  const msg = `Bonjour${name ? ", je suis " + name : ""}. Je souhaite réserver Bò Jadin La du ${fmt(a,{day:"numeric",month:"long",year:"numeric"})} au ${fmt(b,{day:"numeric",month:"long",year:"numeric"})} (${n} nuit${n>1?"s":""}) pour ${guests}. Est-ce possible ? Merci !`;
+  location.href = t === "wa"
+    ? `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(msg)}`
+    : `mailto:${CONTACT.email}?subject=${encodeURIComponent("Demande de réservation Bò Jadin La")}&body=${encodeURIComponent(msg)}`;
+});
+document.getElementById("mail").href = `mailto:${CONTACT.email}?subject=${encodeURIComponent("Réservation Bò Jadin La")}`;
+document.getElementById("wa").href = `https://wa.me/${CONTACT.whatsapp}`;
+
+const load = u => fetch(u, {cache:"no-cache"}).then(r => r.json()).catch(() => ({bookings:[]}));
+Promise.all([load("data/bookings.json"), load("data/manual.json")]).then(([data, man]) => {
+  [...(data.bookings || []), ...(man.bookings || [])].forEach(({start, end}) => {
     for (let d = parse(start); key(d) < end; d = addDays(d,1)) busy.add(key(d));
   });
   let d = parse(todayKey), n = 0;
   while (busy.has(key(d)) && n++ < 730) d = addDays(d,1);
   document.getElementById("next-free").textContent = key(d) === todayKey ? "✨ Disponible dès aujourd'hui" : `Prochaine nuit libre : ${fmt(key(d),{weekday:"long",day:"numeric",month:"long"})}`;
-  if (data.updated) document.getElementById("updated").textContent = "Mis à jour le " + new Date(data.updated).toLocaleString("fr-FR",{dateStyle:"medium",timeStyle:"short"});
+  if (data.updated) document.getElementById("updated").textContent = "Dernière modification du calendrier le " + new Date(data.updated).toLocaleString("fr-FR",{dateStyle:"medium",timeStyle:"short"});
   render();
 }).catch(() => { document.getElementById("next-free").textContent = "Calendrier indisponible, consultez Airbnb"; render(); });

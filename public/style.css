@@ -89,3 +89,22 @@ footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem}
 .wrap{padding:3.5rem 1.1rem}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}.reveal{opacity:1;transform:none}}
+
+.result.col{flex-direction:column;align-items:stretch}
+.fields{display:flex;gap:.6rem;flex-wrap:wrap}
+.fields input,.fields select{flex:1;min-width:150px;padding:.7rem 1rem;border:1px solid var(--line);border-radius:12px;font:inherit;background:#fff}
+.actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.actions .btn{cursor:pointer;font:inherit;font-weight:600;flex:1;min-width:190px}
+.btn.alt{background:var(--sea);border-color:var(--sea)}
+.airbnb-link{font-size:.82rem;color:var(--muted);text-align:center}
+.why{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-bottom:2rem}
+.why div{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:1.4rem}
+.why b{display:block;margin-bottom:.3rem}
+.why span{color:var(--muted);font-size:.9rem}
+
+.badge:empty{display:none}
+#avis[hidden]{display:none}
+.quotes{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-bottom:2rem}
+.quotes:empty{display:none}
+blockquote{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:1.4rem;font-family:Fraunces,serif;font-size:1.05rem;line-height:1.5}
+blockquote cite{display:block;margin-top:.8rem;font:500 .82rem Inter,sans-serif;color:var(--muted);font-style:normal}

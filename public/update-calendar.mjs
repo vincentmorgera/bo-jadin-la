@@ -1,5 +1,5 @@
 // Télécharge le calendrier iCal Airbnb et écrit data/bookings.json (sans dépendance)
-import { writeFileSync } from "node:fs";
+import { writeFileSync, readFileSync, existsSync } from "node:fs";
 const url = process.env.AIRBNB_ICAL_URL;
 if (!url) { console.error("AIRBNB_ICAL_URL manquant"); process.exit(1); }
 const res = await fetch(url);
@@ -12,5 +12,8 @@ for (const ev of text.split("BEGIN:VEVENT").slice(1)) {
   if (s && e) bookings.push({ start: iso(s[1]), end: iso(e[1]) });
 }
 bookings.sort((x, y) => x.start.localeCompare(y.start));
-writeFileSync("data/bookings.json", JSON.stringify({ updated: new Date().toISOString(), bookings }, null, 2));
+// On n'écrit que si les réservations ont changé (évite un redéploiement inutile à chaque passage)
+const old = existsSync("data/bookings.json") ? JSON.parse(readFileSync("data/bookings.json", "utf8")).bookings : null;
+if (JSON.stringify(old) !== JSON.stringify(bookings))
+  writeFileSync("data/bookings.json", JSON.stringify({ updated: new Date().toISOString(), bookings }, null, 2));
 console.log(bookings.length, "réservations");

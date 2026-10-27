@@ -1,6 +1,6 @@
 name: Synchroniser le calendrier Airbnb
 on:
-  schedule: [{ cron: "0 */3 * * *" }]   # toutes les 3 h
+  schedule: [{ cron: "*/30 * * * *" }]   # toutes les 30 min
   workflow_dispatch:
 permissions:
   contents: write
