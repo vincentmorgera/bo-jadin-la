@@ -1,10 +1,14 @@
-// Télécharge le calendrier iCal Airbnb et écrit data/bookings.json (sans dépendance)
+// Télécharge le calendrier iCal Airbnb et écrit public/data/bookings.json (sans dépendance)
 import { writeFileSync, readFileSync, existsSync } from "node:fs";
+
+const FILE = "public/data/bookings.json";
 const url = process.env.AIRBNB_ICAL_URL;
 if (!url) { console.error("AIRBNB_ICAL_URL manquant"); process.exit(1); }
+
 const res = await fetch(url);
 if (!res.ok) { console.error("Erreur iCal", res.status); process.exit(1); }
-const text = (await res.text()).replace(/\r?\n[ \t]/g, "");   // dé-pliage des lignes
+
+const text = (await res.text()).replace(/\r?\n[ \t]/g, "");
 const iso = v => `${v.slice(0,4)}-${v.slice(4,6)}-${v.slice(6,8)}`;
 const bookings = [];
 for (const ev of text.split("BEGIN:VEVENT").slice(1)) {
@@ -12,8 +16,9 @@ for (const ev of text.split("BEGIN:VEVENT").slice(1)) {
   if (s && e) bookings.push({ start: iso(s[1]), end: iso(e[1]) });
 }
 bookings.sort((x, y) => x.start.localeCompare(y.start));
-// On n'écrit que si les réservations ont changé (évite un redéploiement inutile à chaque passage)
-const old = existsSync("data/bookings.json") ? JSON.parse(readFileSync("data/bookings.json", "utf8")).bookings : null;
+
+// On n'écrit que si les réservations ont changé
+const old = existsSync(FILE) ? JSON.parse(readFileSync(FILE, "utf8")).bookings : null;
 if (JSON.stringify(old) !== JSON.stringify(bookings))
-  writeFileSync("data/bookings.json", JSON.stringify({ updated: new Date().toISOString(), bookings }, null, 2));
+  writeFileSync(FILE, JSON.stringify({ updated: new Date().toISOString(), bookings }, null, 2));
 console.log(bookings.length, "réservations");
