@@ -1,6 +1,7 @@
 {
   "name": "bo-jadin-la",
   "version": "1.0.0",
+  "type": "module",
   "description": "Site vitrine et réservations directes pour Bò Jadin La",
   "main": "index.js",
   "scripts": {
