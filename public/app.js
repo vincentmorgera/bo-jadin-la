@@ -1,8 +1,7 @@
 /* ====== À PERSONNALISER ====== */
 const CONTACT = {
   whatsapp: "590XXXXXXXXX",        // numéro international sans + ni espaces (ex : 590690123456)
-  email: "VOTRE@EMAIL.COM",
-  pricePerNight: null              // ex : 85 pour afficher une estimation, ou null pour la masquer
+  email: "VOTRE@EMAIL.COM"
 };
 /* ============================== */
 const ROOM = "1686923054634848912";
@@ -43,6 +42,18 @@ fetch("data/reviews.json", {cache:"no-cache"}).then(r => r.json()).then(r => {
 }).catch(() => {});
 
 /* Calendrier */
+/* Tarifs (données dans data/tarifs.json) */
+let T = {nightly:56, taxPerPersonNight:2, cleaning:0, minNights:1};
+const eur = v => v.toLocaleString("fr-FR",{maximumFractionDigits:2}) + " €";
+const quoteText = (n, g, html = true) => {
+  const lodging = n*T.nightly, tax = n*g*T.taxPerPersonNight, clean = T.cleaning || 0, total = lodging+tax+clean;
+  const t = `${n} nuit${n>1?"s":""} × ${eur(T.nightly)} = ${eur(lodging)} + taxe de séjour ${eur(tax)}${clean?` + ménage ${eur(clean)}`:""} → <b>${eur(total)}</b>`;
+  return html ? t : t.replace(/<\/?b>/g,"");
+};
+const nightsCount = () => Math.round((parse(b)-parse(a))/864e5);
+const updateQuote = () => { const q = document.getElementById("quote"); if (q) q.innerHTML = quoteText(nightsCount(), parseInt(document.getElementById("f-guests").value)); };
+const showTarif = () => document.getElementById("tarif").textContent =
+  `${eur(T.nightly)} la nuit + taxe de séjour ${eur(T.taxPerPersonNight)} par personne et par nuit, soit ${eur(T.nightly+2*T.taxPerPersonNight)} par nuit pour 2 personnes.`;
 const pad = n => String(n).padStart(2,"0");
 const key = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const parse = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y,m-1,d); };
@@ -81,14 +92,16 @@ function render() {
   const r = document.getElementById("result");
   if (a && b) {
     const n = Math.round((parse(b)-parse(a))/864e5);
-    const est = CONTACT.pricePerNight ? ` · environ <b>${n*CONTACT.pricePerNight} €</b>` : "";
+    if (n < T.minNights) { r.className = "result bad"; r.hidden = false; r.innerHTML = `<span>Séjour minimum : ${T.minNights} nuits.</span>`; return; }
     r.className = "result col"; r.hidden = false;
-    r.innerHTML = `<div class="ok">✅ <b>${fmt(a)} → ${fmt(b)}</b> · ${n} nuit${n>1?"s":""} disponible${n>1?"s":""}${est}</div>
+    r.innerHTML = `<div class="ok">✅ <b>${fmt(a)} → ${fmt(b)}</b> · ${n} nuit${n>1?"s":""} disponible${n>1?"s":""}</div>
       <div class="fields"><input id="f-name" placeholder="Votre prénom" autocomplete="given-name">
       <select id="f-guests"><option>1 voyageur</option><option>2 voyageurs</option></select></div>
+      <div class="quote" id="quote"></div>
       <div class="actions"><button class="btn" data-send="wa">Demander via WhatsApp</button>
       <button class="btn alt" data-send="mail">Demander par e-mail</button></div>
       <a class="airbnb-link" href="https://www.airbnb.fr/rooms/${ROOM}?check_in=${a}&check_out=${b}&adults=1" target="_blank" rel="noopener">ou réserver via Airbnb</a>`;
+    updateQuote();
   } else if (a) {
     r.className = "result"; r.hidden = false;
     r.innerHTML = `<span>Arrivée le <b>${fmt(a)}</b>. Choisissez maintenant votre date de départ.</span>`;
@@ -108,12 +121,13 @@ document.getElementById("months").addEventListener("click", e => {
 document.getElementById("prev").onclick = () => { view = new Date(view.getFullYear(), view.getMonth()-1, 1); render(); };
 document.getElementById("next").onclick = () => { view = new Date(view.getFullYear(), view.getMonth()+1, 1); render(); };
 
+document.getElementById("result").addEventListener("change", e => e.target.id === "f-guests" && updateQuote());
 document.getElementById("result").addEventListener("click", e => {
   const t = e.target.dataset.send; if (!t) return;
   const name = document.getElementById("f-name").value.trim();
   const guests = document.getElementById("f-guests").value;
   const n = Math.round((parse(b)-parse(a))/864e5);
-  const msg = `Bonjour${name ? ", je suis " + name : ""}. Je souhaite réserver Bò Jadin La du ${fmt(a,{day:"numeric",month:"long",year:"numeric"})} au ${fmt(b,{day:"numeric",month:"long",year:"numeric"})} (${n} nuit${n>1?"s":""}) pour ${guests}. Est-ce possible ? Merci !`;
+  const msg = `Bonjour${name ? ", je suis " + name : ""}. Je souhaite réserver Bò Jadin La du ${fmt(a,{day:"numeric",month:"long",year:"numeric"})} au ${fmt(b,{day:"numeric",month:"long",year:"numeric"})} (${n} nuit${n>1?"s":""}) pour ${guests}. Estimation : ${quoteText(n, parseInt(guests), false)}. Est-ce possible ? Merci !`;
   location.href = t === "wa"
     ? `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(msg)}`
     : `mailto:${CONTACT.email}?subject=${encodeURIComponent("Demande de réservation Bò Jadin La")}&body=${encodeURIComponent(msg)}`;
@@ -122,7 +136,9 @@ document.getElementById("mail").href = `mailto:${CONTACT.email}?subject=${encode
 document.getElementById("wa").href = `https://wa.me/${CONTACT.whatsapp}`;
 
 const load = u => fetch(u, {cache:"no-cache"}).then(r => r.json()).catch(() => ({bookings:[]}));
-Promise.all([load("data/bookings.json"), load("data/manual.json")]).then(([data, man]) => {
+Promise.all([load("data/bookings.json"), load("data/manual.json"), load("data/tarifs.json")]).then(([data, man, tar]) => {
+  if (tar.nightly) T = {...T, ...tar};
+  showTarif();
   [...(data.bookings || []), ...(man.bookings || [])].forEach(({start, end}) => {
     for (let d = parse(start); key(d) < end; d = addDays(d,1)) busy.add(key(d));
   });

@@ -108,3 +108,6 @@ footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem}
 .quotes:empty{display:none}
 blockquote{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:1.4rem;font-family:Fraunces,serif;font-size:1.05rem;line-height:1.5}
 blockquote cite{display:block;margin-top:.8rem;font:500 .82rem Inter,sans-serif;color:var(--muted);font-style:normal}
+
+.tarif{font-size:.9rem;color:var(--muted);margin:-.4rem 0 1.2rem}
+.quote{background:#fff;border:1px dashed #ffb4a7;border-radius:12px;padding:.8rem 1rem;font-size:.92rem}
