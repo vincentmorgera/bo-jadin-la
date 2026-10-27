@@ -1,10 +1,6 @@
 const ROOM = "1686923054634848912";
-const IMG = id => `https://a0.muscache.com/im/pictures/hosting/Hosting-${ROOM}/original/${id}.jpeg`;
-const PHOTOS = [
-  "718fc521-5262-4415-a176-0e37ae9764f6","be2f0949-106f-4b0c-8c58-094e90593194",
-  "e0ce3f29-8ed8-4df3-8444-9ca042246536","2d50f27e-dbe5-4679-bae5-621b7b6b9300",
-  "7098b582-772d-45fb-b38d-9bc18be25dbd"
-];
+const EXT = "png"; // changez en "jpg" ou "webp" si vous convertissez vos photos
+const PHOTOS = [1,2,3,4,5].map(n => `images/${n}.${EXT}`);
 const SCORES = [["Propreté",4.9],["Précision",4.8],["Arrivée",4.8],["Communication",4.9],["Emplacement",4.8],["Qualité-prix",4.7]];
 
 /* Nav, reveal */
@@ -17,7 +13,7 @@ document.querySelectorAll(".reveal").forEach(el => io.observe(el));
 /* Galerie + lightbox */
 const lb = document.getElementById("lb"), lbImg = lb.querySelector("img");
 document.getElementById("gallery").innerHTML = PHOTOS.map((p,i) =>
-  `<img loading="lazy" src="${IMG(p)}?im_w=${i?600:1000}" data-full="${IMG(p)}?im_w=1600" alt="Bò Jadin La, photo ${i+1}">`).join("");
+  `<img loading="lazy" src="${p}" data-full="${p}" alt="Bò Jadin La, photo ${i+1}">`).join("");
 document.getElementById("gallery").addEventListener("click", e => {
   if (e.target.dataset.full) { lbImg.src = e.target.dataset.full; lb.hidden = false; }
 });
