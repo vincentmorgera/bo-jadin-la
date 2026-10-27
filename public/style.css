@@ -111,3 +111,12 @@ blockquote cite{display:block;margin-top:.8rem;font:500 .82rem Inter,sans-serif;
 
 .tarif{font-size:.9rem;color:var(--muted);margin:-.4rem 0 1.2rem}
 .quote{background:#fff;border:1px dashed #ffb4a7;border-radius:12px;padding:.8rem 1rem;font-size:.92rem}
+
+.d{display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
+.d small{font-size:.6rem;opacity:.65;margin-top:2px}
+.d.sel small,.d:hover small{opacity:.9}
+.tarif{background:#fff6f4;border:1px solid #ffd5cd;border-radius:12px;padding:.7rem 1rem;color:var(--ink);margin:0 0 1.4rem}
+.tarif b{color:var(--coral)}
+
+.quote{line-height:1.8}
+.quote b{font-size:1.05rem}

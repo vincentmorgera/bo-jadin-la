@@ -1,7 +1,7 @@
 /* ====== À PERSONNALISER ====== */
 const CONTACT = {
-  whatsapp: "590XXXXXXXXX",        // numéro international sans + ni espaces (ex : 590690123456)
-  email: "VOTRE@EMAIL.COM"
+  whatsapp: "590690533906",        // numéro international sans + ni espaces
+  email: "bojadinla@gmail.com"
 };
 /* ============================== */
 const ROOM = "1686923054634848912";
@@ -46,14 +46,20 @@ fetch("data/reviews.json", {cache:"no-cache"}).then(r => r.json()).then(r => {
 let T = {nightly:56, taxPerPersonNight:2, cleaning:0, minNights:1};
 const eur = v => v.toLocaleString("fr-FR",{maximumFractionDigits:2}) + " €";
 const quoteText = (n, g, html = true) => {
-  const lodging = n*T.nightly, tax = n*g*T.taxPerPersonNight, clean = T.cleaning || 0, total = lodging+tax+clean;
-  const t = `${n} nuit${n>1?"s":""} × ${eur(T.nightly)} = ${eur(lodging)} + taxe de séjour ${eur(tax)}${clean?` + ménage ${eur(clean)}`:""} → <b>${eur(total)}</b>`;
-  return html ? t : t.replace(/<\/?b>/g,"");
+  const s = k => k > 1 ? "s" : "";
+  const lines = [
+    `Logement : ${eur(T.nightly)} × ${n} nuit${s(n)} = ${eur(n*T.nightly)}`,
+    `Taxe de séjour : ${eur(T.taxPerPersonNight)} × ${g} personne${s(g)} × ${n} nuit${s(n)} = ${eur(n*g*T.taxPerPersonNight)}`
+  ];
+  if (T.cleaning) lines.push(`Ménage : ${eur(T.cleaning)}`);
+  lines.push("Frais de plateforme : 0 €");
+  const total = `Total : ${eur(n*T.nightly + n*g*T.taxPerPersonNight + (T.cleaning || 0))}`;
+  return html ? lines.join("<br>") + `<br><b>${total}</b>` : lines.join("\n") + "\n" + total;
 };
 const nightsCount = () => Math.round((parse(b)-parse(a))/864e5);
 const updateQuote = () => { const q = document.getElementById("quote"); if (q) q.innerHTML = quoteText(nightsCount(), parseInt(document.getElementById("f-guests").value)); };
-const showTarif = () => document.getElementById("tarif").textContent =
-  `${eur(T.nightly)} la nuit + taxe de séjour ${eur(T.taxPerPersonNight)} par personne et par nuit, soit ${eur(T.nightly+2*T.taxPerPersonNight)} par nuit pour 2 personnes.`;
+const showTarif = () => document.getElementById("tarif").innerHTML =
+  `<b>Dès ${eur(T.nightly+T.taxPerPersonNight)} la nuit</b> · ${eur(T.nightly)} + taxe de séjour ${eur(T.taxPerPersonNight)} par personne et par nuit (${eur(T.nightly+2*T.taxPerPersonNight)} pour 2 personnes)`;
 const pad = n => String(n).padStart(2,"0");
 const key = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const parse = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y,m-1,d); };
@@ -81,7 +87,7 @@ function renderMonth(first) {
     if (k === todayKey) c.push("today");
     if (k === a || k === b) c.push("sel");
     else if (a && b && k > a && k < b) c.push("range");
-    h += `<button class="${c.join(" ")}" data-k="${k}">${i}</button>`;
+    h += `<button class="${c.join(" ")}" data-k="${k}">${i}${c.includes("past")||c.includes("booked")?"":`<small>${T.nightly} €</small>`}</button>`;
   }
   return h + "</div></div>";
 }
@@ -127,7 +133,7 @@ document.getElementById("result").addEventListener("click", e => {
   const name = document.getElementById("f-name").value.trim();
   const guests = document.getElementById("f-guests").value;
   const n = Math.round((parse(b)-parse(a))/864e5);
-  const msg = `Bonjour${name ? ", je suis " + name : ""}. Je souhaite réserver Bò Jadin La du ${fmt(a,{day:"numeric",month:"long",year:"numeric"})} au ${fmt(b,{day:"numeric",month:"long",year:"numeric"})} (${n} nuit${n>1?"s":""}) pour ${guests}. Estimation : ${quoteText(n, parseInt(guests), false)}. Est-ce possible ? Merci !`;
+  const msg = `Bonjour${name ? ", je suis " + name : ""}. Je souhaite réserver Bò Jadin La du ${fmt(a,{day:"numeric",month:"long",year:"numeric"})} au ${fmt(b,{day:"numeric",month:"long",year:"numeric"})} (${n} nuit${n>1?"s":""}) pour ${guests}. \n\nEstimation :\n${quoteText(n, parseInt(guests), false)}\n\nEst-ce possible ? Merci !`;
   location.href = t === "wa"
     ? `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(msg)}`
     : `mailto:${CONTACT.email}?subject=${encodeURIComponent("Demande de réservation Bò Jadin La")}&body=${encodeURIComponent(msg)}`;
