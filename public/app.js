@@ -7,6 +7,8 @@ const CONTACT = {
 const ROOM = "1686923054634848912";
 const EXT = "png"; // changez en "jpg" ou "webp" si vous convertissez vos photos
 const PHOTOS = Array.from({length:10}, (_, i) => i + 1).map(n => `images/${n}.${EXT}`);
+// Description affichée sous la photo (optionnel, "" = rien). Une entrée par photo, dans l'ordre.
+const CAPTIONS = ["", "", "", "", "", "", "", "", "", ""];
 
 /* Nav, reveal */
 const nav = document.getElementById("nav");
@@ -16,14 +18,39 @@ const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.
 document.querySelectorAll(".reveal").forEach(el => io.observe(el));
 
 /* Galerie + lightbox */
-const lb = document.getElementById("lb"), lbImg = lb.querySelector("img");
+const lb = document.getElementById("lb"), lbImg = lb.querySelector("img"), lbCap = document.getElementById("lb-cap");
+let cur = 0;
+const show = i => {
+  cur = (i + PHOTOS.length) % PHOTOS.length;
+  lbImg.src = PHOTOS[cur];
+  lbImg.alt = `Bò Jadin La, photo ${cur + 1}`;
+  lbCap.textContent = CAPTIONS[cur] || "";
+  lb.hidden = false;
+};
+const closeLb = () => lb.hidden = true;
 document.getElementById("gallery").innerHTML = PHOTOS.map((p,i) =>
   `<img loading="lazy" src="${p}" data-full="${p}" alt="Bò Jadin La, photo ${i+1}">`).join("");
 document.getElementById("gallery").addEventListener("click", e => {
-  if (e.target.dataset.full) { lbImg.src = e.target.dataset.full; lb.hidden = false; }
+  if (e.target.dataset.full) show(PHOTOS.indexOf(e.target.dataset.full));
 });
-lb.addEventListener("click", () => lb.hidden = true);
-addEventListener("keydown", e => e.key === "Escape" && (lb.hidden = true));
+lb.addEventListener("click", e => { if (e.target === lb) closeLb(); });
+document.getElementById("lb-x").onclick = closeLb;
+document.getElementById("lb-prev").onclick = () => show(cur - 1);
+document.getElementById("lb-next").onclick = () => show(cur + 1);
+addEventListener("keydown", e => {
+  if (lb.hidden) return;
+  if (e.key === "Escape") closeLb();
+  else if (e.key === "ArrowLeft") show(cur - 1);
+  else if (e.key === "ArrowRight") show(cur + 1);
+});
+let x0 = null;
+lb.addEventListener("touchstart", e => x0 = e.touches[0].clientX, {passive:true});
+lb.addEventListener("touchend", e => {
+  if (x0 === null) return;
+  const dx = e.changedTouches[0].clientX - x0;
+  if (Math.abs(dx) > 50) show(cur + (dx < 0 ? 1 : -1));
+  x0 = null;
+});
 
 /* Avis (données dans data/reviews.json) */
 const esc = t => String(t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -33,8 +60,18 @@ fetch("data/reviews.json", {cache:"no-cache"}).then(r => r.json()).then(r => {
   document.getElementById("avis").hidden = false;
   if (r.rating) document.getElementById("rating-h").innerHTML = `<span><span class="gs">★</span> ${fr(r.rating)}</span><small>${r.count} commentaire${r.count>1?"s":""} sur Airbnb</small>`;
   document.getElementById("tags").innerHTML = (r.tags || []).map(t => `<span>${esc(t)}</span>`).join("");
-  document.getElementById("quotes").innerHTML = (r.testimonials || []).map(t =>
-    `<blockquote>${t.stars ? `<div class="gs stars">${"★".repeat(Math.min(5, +t.stars || 0))}</div>` : ""}“${esc(t.text)}”<cite>${esc(t.author)}${t.date ? " · " + esc(t.date) : ""}</cite></blockquote>`).join("");
+  const list = (r.testimonials || []).slice().sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
+  const monthFr = d => /^\d{4}-\d{2}/.test(d) ? new Date(+d.slice(0,4), +d.slice(5,7) - 1, 1).toLocaleDateString("fr-FR", {month:"long", year:"numeric"}) : d;
+  const card = t => `<blockquote>${t.stars ? `<div class="gs stars">${"★".repeat(Math.min(5, +t.stars || 0))}</div>` : ""}“${esc(t.text)}”<cite>${esc(t.author)}${t.date ? " · " + esc(monthFr(t.date)) : ""}</cite></blockquote>`;
+  const quotes = document.getElementById("quotes"), moreBtn = document.getElementById("more-rev");
+  let shown = 0;
+  const showMore = () => {
+    quotes.insertAdjacentHTML("beforeend", list.slice(shown, shown + 3).map(card).join(""));
+    shown = Math.min(shown + 3, list.length);
+    moreBtn.hidden = shown >= list.length;
+  };
+  moreBtn.onclick = showMore;
+  showMore();
   document.getElementById("scores").innerHTML = (r.scores || []).map(([n,v]) =>
     `<div class="score"><span>${esc(n)}</span><div class="bar"><i style="width:${v/5*100}%"></i></div><b>${fr(v)}</b></div>`).join("");
   if (r.updated) document.getElementById("rev-updated").textContent = "Notes Airbnb relevées le " + new Date(r.updated).toLocaleDateString("fr-FR",{dateStyle:"long"});
@@ -172,4 +209,4 @@ const slide = dir => {
 };
 document.getElementById("c-prev").onclick = () => slide(-1);
 document.getElementById("c-next").onclick = () => slide(1);
-track.addEventListener("click", e => { if (e.target.dataset.full) { lbImg.src = e.target.dataset.full; lb.hidden = false; } });
+track.addEventListener("click", e => { if (e.target.dataset.full) show(PHOTOS.indexOf(e.target.dataset.full)); });
