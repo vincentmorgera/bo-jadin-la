@@ -3,7 +3,57 @@
   "rating": 4.87,
   "count": 15,
   "badge": "★ 4,87 · Superhôtes Airbnb",
-  "tags": ["Calme", "Hospitalité", "Emplacement", "Décoration", "Propreté"],
-  "scores": [["Propreté", 4.9], ["Précision", 4.8], ["Arrivée", 4.8], ["Communication", 4.9], ["Emplacement", 4.8], ["Qualité-prix", 4.7]],
-  "testimonials": []
+  "tags": [
+    "Calme",
+    "Hospitalité",
+    "Emplacement",
+    "Décoration",
+    "Propreté"
+  ],
+  "scores": [
+    [
+      "Propreté",
+      4.9
+    ],
+    [
+      "Précision",
+      4.8
+    ],
+    [
+      "Arrivée",
+      4.8
+    ],
+    [
+      "Communication",
+      4.9
+    ],
+    [
+      "Emplacement",
+      4.8
+    ],
+    [
+      "Qualité-prix",
+      4.7
+    ]
+  ],
+  "testimonials": [
+    {
+      "text": "Petit cocon chaleureux et propre. Une déco de goût et bien équipé. Avec une vue sur la mer 🌊.",
+      "author": "Jeanne",
+      "date": "Avis Airbnb",
+      "stars": 5
+    },
+    {
+      "text": "Logement tres agréable. Propre, calme. Et Gwen est très acceuillante.",
+      "author": "Cécilia",
+      "date": "Avis Airbnb",
+      "stars": 5
+    },
+    {
+      "text": "Un grand merci à Gwen et Vincent pour ces deux jours passés à Bo Jadin la. Le linge, la déco, la petite vu de la terrasse, le calme, etc. Tout était parfait 👌🌴",
+      "author": "Vincent",
+      "date": "Avis Airbnb",
+      "stars": 5
+    }
+  ]
 }

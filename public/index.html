@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bò Jadin La · Dépendance de charme à Marie-Galante</title>
-<meta name="description" content="Dépendance climatisée de 16 m² avec terrasse privée à Grand-Bourg, Marie-Galante. À deux pas de l'Habitation Murat et de la plage. ">
-<meta property="og:title" content="Bò Jadin La · Marie-Galante">
-<meta property="og:image" content="images/1.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bò Jadin La · Dépendance de charme à Marie-Galante</title>
+  <meta name="description" content="Dépendance climatisée de 16 m² avec terrasse privée à Grand-Bourg, Marie-Galante. À deux pas de l'Habitation Murat et de la plage. ">
+  <meta property="og:title" content="Bò Jadin La · Marie-Galante">
+  <meta property="og:image" content="images/1.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Nunito+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="hotel.css">
 </head>
 <body>
 
@@ -21,69 +22,66 @@
     <a href="#galerie">Photos</a>
     <a href="#disponibilites">Disponibilités</a>
     <a href="#avis">Avis</a>
+    <a class="tel" href="tel:+590690533906">+590 6 90 53 39 06</a>
     <a class="pill" href="#disponibilites">Réserver</a>
   </div>
 </nav>
 
 <header class="hero" id="top">
-  <img src="images/1.png" alt="Bò Jadin La, dépendance à Grand-Bourg">
   <div class="hero-inner">
-    <span class="badge" id="badge"></span>
     <h1>Bò Jadin La</h1>
     <p>Votre petit nid tropical à Grand-Bourg, Marie-Galante</p>
+    <div class="meteo" id="meteo" hidden></div>
     <div class="cta">
       <a class="btn" href="#disponibilites">Voir les disponibilités</a>
       <a class="btn ghost" href="#galerie">Découvrir en photos</a>
     </div>
   </div>
+  <div class="arch"><img src="images/1.png" alt="Bò Jadin La, dépendance à Grand-Bourg"></div>
 </header>
 
-<section class="stats reveal">
-  <div><b>16 m²</b><span>dépendance rénovée</span></div>
-  <div><b>15 m²</b><span>terrasse privée</span></div>
-  <div><b>&lt; 1 km</b><span>plage &amp; Habitation Murat</span></div>
-  <div><b>160 cm</b><span>lit double climatisé</span></div>
-</section>
+<section class="wrap reveal" id="logement">
+  <div class="logement-grid">
+    <div class="carousel">
+      <div class="track" id="track"></div>
+      <button class="c-btn" id="c-prev" aria-label="Photo précédente">‹</button>
+      <button class="c-btn" id="c-next" aria-label="Photo suivante">›</button>
+      <span class="count" id="count"></span>
+    </div>
+    <div>
 
-<section class="wrap split reveal" id="logement">
-  <div>
-    <p class="eyebrow">Le logement</p>
-    <h2>Calme, lumineux et tout confort</h2>
-    <p>Une dépendance fraîchement rénovée avec chambre climatisée (lit double 160), salle d'eau attenante avec douche à l'italienne, WC indépendant et grande terrasse de 15 m² au milieu d'un jardin verdoyant.</p>
-    <p>À moins d'1 km de l'Habitation Murat et de la plage du Bourg, et à moins de 2 km du centre de Grand-Bourg. Vos hôtes Gwen et Vincent vivent à proximité, mais votre intimité est préservée.</p>
-    <p class="note">🐾 Un chien et des chats vivent dans la propriété.</p>
+      <h2>Calme, lumineux et tout confort</h2>
+      <p>Une dépendance fraîchement rénovée avec chambre climatisée (lit double 160), salle d'eau attenante avec douche à l'italienne, WC indépendant et grande terrasse de 15 m² au milieu d'un jardin verdoyant.</p>
+      <p>À moins d'1 km de l'Habitation Murat et de la plage du Bourg, et à moins de 2 km du centre de Grand-Bourg. Vos hôtes Gwen et Vincent vivent à proximité, mais votre intimité est préservée.</p>
+      <p class="note">🐾 Un chien et des chats vivent dans la propriété.</p>
+    </div>
   </div>
-  <ul class="amenities">
-    <li>🌴 Terrasse privée de 15 m²</li>
-    <li>❄️ Climatisation</li>
-    <li>🛏️ Lit double 160 cm</li>
-    <li>🚿 Douche à l'italienne</li>
-    <li>☕ Coin petit-déjeuner<small>minibar, bouilloire, machine à café</small></li>
-    <li>📶 Wifi &amp; espace de travail</li>
-    <li>🔒 Serrure sur la chambre</li>
-    <li>🚽 WC indépendant</li>
+  <ul class="picto">
+    <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="8" rx="2"/><path d="M7 9h10M7 15v3M12 15v5M17 15v3"/></svg></span>Climatisation</li>
+    <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8M5 10v10h14V10M10 20v-6h4v6"/></svg></span>Chambre 16 m²</li>
+    <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 8 0 0 1 18 0z"/><path d="M12 4c-2.4 2.5-3.2 5-3.2 8M12 4c2.4 2.5 3.2 5 3.2 8M12 12v9M7 21h10"/></svg></span>Terrasse 15 m²</li>
+    <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6v13M3 16h18v3M21 16v-3a3 3 0 0 0-3-3h-7v6"/><circle cx="7.5" cy="12" r="1.7"/></svg></span>Lit double 160 cm</li>
+    <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9zM17 10h1.5a2.5 2.5 0 0 1 0 5H17M8 3v3M12 3v3"/></svg></span>Coin petit-déjeuner<small>minibar, bouilloire, machine à café</small></li>
+    <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19.5" r=".8" fill="currentColor"/></svg></span>Wifi</li>
   </ul>
 </section>
 
 <section class="wrap reveal" id="galerie">
-  <p class="eyebrow">Galerie</p>
+
   <h2>Un aperçu des lieux</h2>
   <div class="gallery" id="gallery"></div>
 </section>
 
 <section class="wrap reveal" id="disponibilites">
-  <p class="eyebrow">Calendrier en direct</p>
+
   <h2>Disponibilités</h2>
-  <p class="sub">Synchronisé en direct. Choisissez votre date d'arrivée puis de départ, puis envoyez-nous votre demande en un clic.</p>
   <div class="cal-card">
     <div class="cal-top">
-      <div id="next-free" class="next-free">Chargement…</div>
       <div class="nav-btns">
         <button id="prev" aria-label="Mois précédent">‹</button>
         <button id="next" aria-label="Mois suivant">›</button>
       </div>
     </div>
-    <p class="tarif" id="tarif"></p>
     <div class="months" id="months"></div>
     <div class="legend">
       <span><i class="dot free"></i>Disponible</span>
@@ -96,10 +94,11 @@
 </section>
 
 <section class="wrap reveal" id="avis" hidden>
-  <p class="eyebrow">Avis voyageurs</p>
+  <h2>Avis voyageurs</h2>
   <h2 id="rating-h"></h2>
   <div class="tags" id="tags"></div>
   <div class="quotes" id="quotes"></div>
+  <a class="more" href="https://www.airbnb.fr/rooms/1686923054634848912#reviews" target="_blank" rel="noopener">Lire tous les avis sur Airbnb</a>
   <div class="scores" id="scores"></div>
   <p class="updated" id="rev-updated"></p>
 </section>
@@ -120,7 +119,11 @@
   </div>
 </section>
 
-<footer>© 2026 Bò Jadin La · Grand-Bourg, Marie-Galante · Guadeloupe</footer>
+<footer>
+  <p>Bò Jadin La · Grand-Bourg, Marie-Galante · Guadeloupe</p>
+  <p><a href="tel:+590690533906">+590 6 90 53 39 06</a> · <a href="mailto:bojadinla@gmail.com">bojadinla@gmail.com</a></p>
+  <p>© 2026 Tous droits réservés</p>
+</footer>
 
 <div class="lightbox" id="lb" hidden><button id="lb-x" aria-label="Fermer">×</button><img alt=""></div>
 <script src="app.js"></script>

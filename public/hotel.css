@@ -1,0 +1,131 @@
+/* ===== Variante « hôtel en bord de mer » : chargée après style.css ===== */
+:root{--ink:#16312f;--muted:#587069;--sea:#23724f;--sea-d:#123c30;--sand:#ffffff;--coral:#0a8396;--line:#dfe9e8;--r:2px}
+body{background:#fff}
+#disponibilites{box-shadow:0 0 0 100vmax #f1f9f8;clip-path:inset(0 -100vmax)}
+h2{font-weight:500;letter-spacing:.01em}
+.eyebrow{letter-spacing:.32em;font-size:.72rem}
+.eyebrow::before{display:none}
+#galerie,#disponibilites,#avis{text-align:center}
+.sub{margin-left:auto;margin-right:auto}
+.tags{justify-content:center}
+.tags span{border-radius:0;letter-spacing:.1em;text-transform:uppercase;font-size:.7rem}
+.wrap{padding:6rem 1.25rem}
+
+/* Navigation transparente sur la photo */
+.nav{color:#fff;background:transparent;backdrop-filter:none;box-shadow:none;padding:1.2rem 2rem}
+.nav.solid{background:rgba(255,255,255,.94);backdrop-filter:blur(14px);color:var(--ink);box-shadow:0 1px 0 var(--line)}
+.links a{text-transform:uppercase;letter-spacing:.16em;font-size:.74rem}
+.links .pill{background:var(--coral);color:#fff;border:1px solid var(--coral);border-radius:0;padding:.65rem 1.5rem;font-weight:700;box-shadow:0 8px 20px -8px rgba(10,131,150,.8)}
+.links .pill:hover{background:var(--sea);border-color:var(--sea)}
+
+/* Hero plein écran */
+.hero{display:grid;place-items:center;position:relative;min-height:100svh;padding:0;text-align:center;color:#fff;background:var(--sea-d)}
+.hero::before{display:none}
+.hero::after{display:block;content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,70,80,.35),rgba(10,50,38,.62))}
+.arch{position:absolute;inset:0;max-width:none;margin:0;order:0}
+.arch img{width:100%;height:100%;aspect-ratio:auto;border-radius:0;box-shadow:none}
+.hero-inner{position:relative;z-index:2;max-width:820px;padding:7rem 1.5rem 7rem}
+.hero h1{color:#fff;font-weight:500;letter-spacing:.03em;font-size:clamp(3.4rem,10vw,7rem)}
+.hero p{color:#fff;text-transform:uppercase;letter-spacing:.22em;font-size:.8rem}
+.hero .cta{justify-content:center}
+.badge,.meteo{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.4);color:#fff;backdrop-filter:blur(8px);border-radius:0;letter-spacing:.1em;text-transform:uppercase;font-size:.72rem}
+
+/* Boutons */
+.btn{border-radius:0;text-transform:uppercase;letter-spacing:.16em;font-size:.76rem;padding:1.1rem 2rem}
+.btn:hover{background:var(--sea);border-color:var(--sea);box-shadow:none;transform:none}
+.btn.alt{background:var(--sea);border-color:var(--sea)}
+.btn.alt:hover{background:var(--coral);border-color:var(--coral)}
+.btn.ghost,.host .btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.75)}
+.btn.ghost:hover{background:#fff;color:var(--sea-d);border-color:#fff}
+
+/* Cartes et blocs : angles droits, esprit hôtel */
+.stats{border-radius:0;margin-top:-3.5rem}
+.stats>div+div{border-left:1px solid var(--line)}
+.amenities li,.why div,blockquote,.cal-card,.note,.quote,.result,.tarif,.next-free,.fields input,.fields select{border-radius:0}
+.cal-card{box-shadow:0 30px 60px -35px rgba(18,60,48,.3)}
+.gallery{gap:.5rem}
+.gallery img,.gallery img:first-child,.gallery img:nth-child(2),.gallery img:nth-child(5){border-radius:0}
+.d{border-radius:2px;background:#e8f5f5}
+.d.range{background:#c6e8e6;color:#0a5560}
+.dot.free{background:#e8f5f5}
+.next-free{background:#e0f3f3;color:#0a5560}
+.tarif,.result{background:#eef8f7;border-color:#c3e3e1}
+.quote{border-color:#8fcfcf}
+.host{background:linear-gradient(135deg,#0a8396,#1f6b4a);border-radius:0;padding:5rem 1.5rem}
+.host p{color:#dff2ee}
+footer{background:var(--sea-d);color:#9cbfb2;padding:2.5rem}
+
+.links .tel{letter-spacing:.06em}
+/* Trois vignettes photo */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.6rem;padding-top:3rem;padding-bottom:0}
+.tiles a{display:flex;align-items:flex-end;aspect-ratio:4/5;padding:1.5rem;color:#fff;text-decoration:none;font-family:'Cormorant Garamond',Georgia,serif;font-size:1.7rem;font-weight:500;background:linear-gradient(180deg,transparent 45%,rgba(10,50,38,.75)),var(--img) center/cover;transition:.4s}
+.tiles a:hover{filter:brightness(1.1)}
+/* Galerie en mosaïque (toutes les photos) */
+.gallery{display:block;columns:3 260px;column-gap:.5rem;margin-top:1.5rem}
+.gallery img{display:block;width:100%;height:auto;margin:0 0 .5rem;break-inside:avoid}
+footer p{margin:.2rem 0;color:inherit}footer a{color:#fff}
+
+
+/* Note Airbnb mise en avant */
+.gs{color:#f4b41a}
+.badge{background:#fff;color:var(--ink);border:0;backdrop-filter:none;font-size:.9rem;font-weight:700;letter-spacing:.04em;text-transform:none;padding:.65rem 1.5rem;box-shadow:0 10px 30px -10px rgba(0,0,0,.5)}
+.badge .gs{font-size:1.05rem}
+.stats>div[hidden]{display:none}
+#stat-rating b{color:var(--ink)}
+#rating-h{display:flex;flex-direction:column;align-items:center;gap:.4rem;font-size:clamp(3.6rem,10vw,5.6rem);line-height:1;margin-bottom:1.5rem}
+#rating-h small{font-family:'Nunito Sans',sans-serif;font-size:.78rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+
+/* Couleurs des boutons : orange-rouge (réserver) et azur (photos) */
+.btn,.links .pill{background:#e24a20;border-color:#e24a20;color:#fff}
+.btn:hover,.links .pill:hover{background:#c63d18;border-color:#c63d18;box-shadow:none;transform:none}
+.links .pill{box-shadow:0 8px 20px -8px rgba(226,74,32,.8)}
+.btn.alt{background:var(--sea);border-color:var(--sea)}
+.btn.alt:hover{background:var(--coral);border-color:var(--coral)}
+.hero .btn.ghost{background:#0aa3c2;border-color:#0aa3c2;color:#fff}
+.hero .btn.ghost:hover{background:#0889a4;border-color:#0889a4;color:#fff}
+
+/* Lisibilité du titre sur la photo d'accueil + centrage */
+.hero{grid-template-columns:1fr}
+.hero::after{background:linear-gradient(180deg,rgba(6,40,45,.6) 0%,rgba(6,40,45,.5) 45%,rgba(6,40,45,.72) 100%)}
+.hero h1,.hero p{text-shadow:0 2px 20px rgba(0,0,0,.5)}
+.hero-inner{margin:0 auto;text-align:center}
+.meteo{text-shadow:none}
+
+/* Le voile sombre doit passer au-dessus de la photo (et sous le texte) */
+.arch{z-index:0}
+.hero::after{z-index:1}
+
+/* Section logement : carrousel à gauche, texte à droite, pictogrammes dessous */
+.logement-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:3rem;align-items:center}
+.carousel{position:relative}
+.track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;aspect-ratio:4/3;background:#eef2f1}
+.track::-webkit-scrollbar{display:none}
+.track img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;scroll-snap-align:start;cursor:zoom-in}
+.c-btn{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;border:0;background:rgba(255,255,255,.92);color:var(--ink);font-size:1.7rem;line-height:1;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.c-btn:hover{background:#fff;color:var(--coral)}
+#c-prev{left:1rem}#c-next{right:1rem}
+.count{position:absolute;right:1rem;bottom:1rem;background:rgba(0,0,0,.55);color:#fff;font-size:.78rem;padding:.25rem .8rem;border-radius:99px;letter-spacing:.08em}
+.picto{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:2rem 1rem;margin-top:3.5rem;text-align:center}
+.picto li{display:flex;flex-direction:column;align-items:center;gap:.7rem;font-weight:600;font-size:.92rem}
+.picto .ic{width:68px;height:68px;border-radius:50%;background:#e8f5f5;display:grid;place-items:center;font-size:1.8rem}
+.picto small{display:block;font-weight:400;color:var(--muted);font-size:.78rem;margin-top:-.4rem}
+@media(max-width:760px){.logement-grid{grid-template-columns:1fr;gap:2rem}}
+
+/* Titres de section en vert forêt */
+#logement h2,#galerie h2,#disponibilites h2{color:var(--sea)}
+#logement h2,#galerie h2,#disponibilites h2{color:#0a8fb5}
+
+.cal-top{justify-content:flex-end}
+#avis>h2:not(#rating-h){color:#0a8fb5}
+
+/* Témoignages mis en avant */
+.quotes{grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem;margin:2rem 0 1.5rem;text-align:left}
+blockquote{border:0;border-top:4px solid #0a8fb5;background:#fff;box-shadow:0 20px 45px -25px rgba(18,60,48,.35);padding:1.8rem 1.6rem;font-size:1.2rem;line-height:1.5;border-radius:0;color:var(--ink)}
+blockquote .stars{font-family:'Nunito Sans',sans-serif;font-size:1rem;letter-spacing:.15em;margin-bottom:.7rem}
+blockquote cite{margin-top:1.1rem;color:var(--sea);font-weight:700}
+.more{display:inline-block;margin:.5rem 0 3rem;color:#0a8fb5;font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:.78rem;text-decoration:none;border-bottom:1px solid currentColor}
+
+/* Pictogrammes en traits fins */
+.picto .ic{width:68px;height:68px;background:#fff;border:1.5px solid #bfe6ef;color:#0a8fb5;transition:.25s}
+.picto .ic svg{width:30px;height:30px}
+.picto li:hover .ic{background:#0a8fb5;border-color:#0a8fb5;color:#fff}

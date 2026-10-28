@@ -6,7 +6,7 @@ const CONTACT = {
 /* ============================== */
 const ROOM = "1686923054634848912";
 const EXT = "png"; // changez en "jpg" ou "webp" si vous convertissez vos photos
-const PHOTOS = [1,2,3,4,5].map(n => `images/${n}.${EXT}`);
+const PHOTOS = Array.from({length:10}, (_, i) => i + 1).map(n => `images/${n}.${EXT}`);
 
 /* Nav, reveal */
 const nav = document.getElementById("nav");
@@ -29,13 +29,12 @@ addEventListener("keydown", e => e.key === "Escape" && (lb.hidden = true));
 const esc = t => String(t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const fr = v => String(v).replace(".", ",");
 fetch("data/reviews.json", {cache:"no-cache"}).then(r => r.json()).then(r => {
-  if (r.badge) document.getElementById("badge").textContent = r.badge;
   if (!r.rating && !(r.testimonials || []).length) return;
   document.getElementById("avis").hidden = false;
-  if (r.rating) document.getElementById("rating-h").innerHTML = `★ ${fr(r.rating)} <small>· ${r.count} commentaire${r.count>1?"s":""} sur Airbnb</small>`;
+  if (r.rating) document.getElementById("rating-h").innerHTML = `<span><span class="gs">★</span> ${fr(r.rating)}</span><small>${r.count} commentaire${r.count>1?"s":""} sur Airbnb</small>`;
   document.getElementById("tags").innerHTML = (r.tags || []).map(t => `<span>${esc(t)}</span>`).join("");
   document.getElementById("quotes").innerHTML = (r.testimonials || []).map(t =>
-    `<blockquote>“${esc(t.text)}”<cite>${esc(t.author)}${t.date ? " · " + esc(t.date) : ""}</cite></blockquote>`).join("");
+    `<blockquote>${t.stars ? `<div class="gs stars">${"★".repeat(Math.min(5, +t.stars || 0))}</div>` : ""}“${esc(t.text)}”<cite>${esc(t.author)}${t.date ? " · " + esc(t.date) : ""}</cite></blockquote>`).join("");
   document.getElementById("scores").innerHTML = (r.scores || []).map(([n,v]) =>
     `<div class="score"><span>${esc(n)}</span><div class="bar"><i style="width:${v/5*100}%"></i></div><b>${fr(v)}</b></div>`).join("");
   if (r.updated) document.getElementById("rev-updated").textContent = "Notes Airbnb relevées le " + new Date(r.updated).toLocaleDateString("fr-FR",{dateStyle:"long"});
@@ -58,8 +57,6 @@ const quoteText = (n, g, html = true) => {
 };
 const nightsCount = () => Math.round((parse(b)-parse(a))/864e5);
 const updateQuote = () => { const q = document.getElementById("quote"); if (q) q.innerHTML = quoteText(nightsCount(), parseInt(document.getElementById("f-guests").value)); };
-const showTarif = () => document.getElementById("tarif").innerHTML =
-  `<b>Dès ${eur(T.nightly+T.taxPerPersonNight)} la nuit</b> · ${eur(T.nightly)} + taxe de séjour ${eur(T.taxPerPersonNight)} par personne et par nuit (${eur(T.nightly+2*T.taxPerPersonNight)} pour 2 personnes)`;
 const pad = n => String(n).padStart(2,"0");
 const key = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const parse = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y,m-1,d); };
@@ -144,13 +141,35 @@ document.getElementById("wa").href = `https://wa.me/${CONTACT.whatsapp}`;
 const load = u => fetch(u, {cache:"no-cache"}).then(r => r.json()).catch(() => ({bookings:[]}));
 Promise.all([load("data/bookings.json"), load("data/manual.json"), load("data/tarifs.json")]).then(([data, man, tar]) => {
   if (tar.nightly) T = {...T, ...tar};
-  showTarif();
+
   [...(data.bookings || []), ...(man.bookings || [])].forEach(({start, end}) => {
     for (let d = parse(start); key(d) < end; d = addDays(d,1)) busy.add(key(d));
   });
-  let d = parse(todayKey), n = 0;
-  while (busy.has(key(d)) && n++ < 730) d = addDays(d,1);
-  document.getElementById("next-free").textContent = key(d) === todayKey ? "✨ Disponible dès aujourd'hui" : `Prochaine nuit libre : ${fmt(key(d),{weekday:"long",day:"numeric",month:"long"})}`;
   if (data.updated) document.getElementById("updated").textContent = "Dernière modification du calendrier le " + new Date(data.updated).toLocaleString("fr-FR",{dateStyle:"medium",timeStyle:"short"});
   render();
-}).catch(() => { document.getElementById("next-free").textContent = "Calendrier indisponible, consultez Airbnb"; render(); });
+}).catch(() => { render(); });
+
+/* Météo du moment à Grand-Bourg (Open-Meteo, sans clé) */
+const WMO = c => c === 0 ? ["☀️","Grand soleil"] : c <= 2 ? ["🌤️","Peu nuageux"] : c === 3 ? ["☁️","Couvert"] :
+  c <= 48 ? ["🌫️","Brumeux"] : c <= 57 ? ["🌦️","Bruine"] : c <= 67 ? ["🌧️","Pluie"] : c <= 82 ? ["🌦️","Averses"] : c >= 95 ? ["⛈️","Orage"] : ["🌴","Variable"];
+fetch("https://api.open-meteo.com/v1/forecast?latitude=15.88&longitude=-61.31&current=temperature_2m,weather_code,wind_speed_10m&timezone=America%2FGuadeloupe")
+  .then(r => r.json()).then(d => {
+    const c = d.current, [icon, label] = WMO(c.weather_code), el = document.getElementById("meteo");
+    el.textContent = `${icon} ${Math.round(c.temperature_2m)} °C à Grand-Bourg · ${label} · vent ${Math.round(c.wind_speed_10m)} km/h`;
+    el.hidden = false;
+  }).catch(() => {});
+
+/* Carrousel de la section « Le logement » */
+const track = document.getElementById("track"), count = document.getElementById("count");
+track.innerHTML = PHOTOS.map((p, i) => `<img loading="lazy" src="${p}" data-full="${p}" alt="Bò Jadin La, photo ${i+1}">`).join("");
+const updCount = () => count.textContent = `${Math.round(track.scrollLeft / track.clientWidth) + 1} / ${PHOTOS.length}`;
+track.addEventListener("scroll", updCount, {passive:true}); updCount();
+const slide = dir => {
+  const end = track.scrollLeft + track.clientWidth >= track.scrollWidth - 5;
+  if (dir > 0 && end) track.scrollTo({left:0, behavior:"smooth"});
+  else if (dir < 0 && track.scrollLeft < 5) track.scrollTo({left:track.scrollWidth, behavior:"smooth"});
+  else track.scrollBy({left:dir * track.clientWidth, behavior:"smooth"});
+};
+document.getElementById("c-prev").onclick = () => slide(-1);
+document.getElementById("c-next").onclick = () => slide(1);
+track.addEventListener("click", e => { if (e.target.dataset.full) { lbImg.src = e.target.dataset.full; lb.hidden = false; } });
