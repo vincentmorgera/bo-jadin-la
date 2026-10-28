@@ -1,1 +1,6 @@
-{ "bookings": [] }
+{
+  "bookings": [],
+  "open": [
+    { "from": "2027-05-13", "to": "2027-05-17", "note": "2 nuits minimum"  }
+  ]
+}

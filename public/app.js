@@ -29,7 +29,7 @@ const show = i => {
 };
 const closeLb = () => lb.hidden = true;
 document.getElementById("gallery").innerHTML = PHOTOS.map((p,i) =>
-  `<img loading="lazy" src="${p}" data-full="${p}" alt="Bò Jadin La, photo ${i+1}">`).join("");
+    `<img loading="lazy" src="${p}" data-full="${p}" alt="Bò Jadin La, photo ${i+1}">`).join("");
 document.getElementById("gallery").addEventListener("click", e => {
   if (e.target.dataset.full) show(PHOTOS.indexOf(e.target.dataset.full));
 });
@@ -73,23 +73,26 @@ fetch("data/reviews.json", {cache:"no-cache"}).then(r => r.json()).then(r => {
   moreBtn.onclick = showMore;
   showMore();
   document.getElementById("scores").innerHTML = (r.scores || []).map(([n,v]) =>
-    `<div class="score"><span>${esc(n)}</span><div class="bar"><i style="width:${v/5*100}%"></i></div><b>${fr(v)}</b></div>`).join("");
+      `<div class="score"><span>${esc(n)}</span><div class="bar"><i style="width:${v/5*100}%"></i></div><b>${fr(v)}</b></div>`).join("");
   if (r.updated) document.getElementById("rev-updated").textContent = "Notes Airbnb relevées le " + new Date(r.updated).toLocaleDateString("fr-FR",{dateStyle:"long"});
 }).catch(() => {});
 
 /* Calendrier */
 /* Tarifs (données dans data/tarifs.json) */
-let T = {nightly:56, taxPerPersonNight:2, cleaning:0, minNights:1};
+let T = {nightly:56, periods:[], taxPerPersonNight:2, cleaning:0, minNights:1};
+const priceOf = k => (T.periods || []).find(p => k >= p.from && k <= p.to)?.nightly ?? T.nightly;
 const eur = v => v.toLocaleString("fr-FR",{maximumFractionDigits:2}) + " €";
 const quoteText = (n, g, html = true) => {
   const s = k => k > 1 ? "s" : "";
-  const lines = [
-    `Logement : ${eur(T.nightly)} × ${n} nuit${s(n)} = ${eur(n*T.nightly)}`,
-    `Taxe de séjour : ${eur(T.taxPerPersonNight)} × ${g} personne${s(g)} × ${n} nuit${s(n)} = ${eur(n*g*T.taxPerPersonNight)}`
-  ];
+  const prices = [];
+  for (let d = parse(a); key(d) < b; d = addDays(d,1)) prices.push(priceOf(key(d)));
+  const byPrice = new Map();
+  prices.forEach(p => byPrice.set(p, (byPrice.get(p) || 0) + 1));
+  const lines = [...byPrice].map(([p, k]) => `Logement : ${eur(p)} × ${k} nuit${s(k)} = ${eur(p*k)}`);
+  lines.push(`Taxe de séjour : ${eur(T.taxPerPersonNight)} × ${g} personne${s(g)} × ${n} nuit${s(n)} = ${eur(n*g*T.taxPerPersonNight)}`);
   if (T.cleaning) lines.push(`Ménage : ${eur(T.cleaning)}`);
   lines.push("Frais de plateforme : 0 €");
-  const total = `Total : ${eur(n*T.nightly + n*g*T.taxPerPersonNight + (T.cleaning || 0))}`;
+  const total = `Total : ${eur(prices.reduce((x, p) => x + p, 0) + n*g*T.taxPerPersonNight + (T.cleaning || 0))}`;
   return html ? lines.join("<br>") + `<br><b>${total}</b>` : lines.join("\n") + "\n" + total;
 };
 const nightsCount = () => Math.round((parse(b)-parse(a))/864e5);
@@ -102,10 +105,12 @@ const fmt = (s,o={day:"numeric",month:"short"}) => parse(s).toLocaleDateString("
 const todayKey = key(new Date());
 
 const busy = new Set();            // nuits occupées (clé = jour de la nuit)
+const notes = new Map();           // commentaires par nuit (manual.json)
 let view = new Date(); view.setDate(1);
 let a = null, b = null;
 
 const nightsFree = (from, to) => { for (let d = parse(from); key(d) < to; d = addDays(d,1)) if (busy.has(key(d))) return false; return true; };
+const stayNotes = () => { const s = new Set(); for (let d = parse(a); key(d) < b; d = addDays(d,1)) if (notes.has(key(d))) s.add(notes.get(key(d))); return [...s]; };
 
 function renderMonth(first) {
   const days = new Date(first.getFullYear(), first.getMonth()+1, 0).getDate();
@@ -121,7 +126,8 @@ function renderMonth(first) {
     if (k === todayKey) c.push("today");
     if (k === a || k === b) c.push("sel");
     else if (a && b && k > a && k < b) c.push("range");
-    h += `<button class="${c.join(" ")}" data-k="${k}">${i}${c.includes("past")||c.includes("booked")?"":`<small>${T.nightly} €</small>`}</button>`;
+    const note = k >= todayKey && notes.get(k); if (note) c.push("has-note");
+    h += `<button class="${c.join(" ")}" data-k="${k}"${note ? ` title="${esc(note)}"` : ""}>${i}${c.includes("past")||c.includes("booked")?"":`<small>${priceOf(k)} €</small>`}</button>`;
   }
   return h + "</div></div>";
 }
@@ -135,6 +141,7 @@ function render() {
     if (n < T.minNights) { r.className = "result bad"; r.hidden = false; r.innerHTML = `<span>Séjour minimum : ${T.minNights} nuits.</span>`; return; }
     r.className = "result col"; r.hidden = false;
     r.innerHTML = `<div class="ok">✅ <b>${fmt(a)} → ${fmt(b)}</b> · ${n} nuit${n>1?"s":""} disponible${n>1?"s":""}</div>
+      ${stayNotes().map(t => `<div class="stay-note">ℹ️ ${esc(t)}</div>`).join("")}
       <div class="fields"><input id="f-name" placeholder="Votre prénom" autocomplete="given-name">
       <select id="f-guests"><option>1 voyageur</option><option>2 voyageurs</option></select></div>
       <div class="quote" id="quote"></div>
@@ -144,7 +151,7 @@ function render() {
     updateQuote();
   } else if (a) {
     r.className = "result"; r.hidden = false;
-    r.innerHTML = `<span>Arrivée le <b>${fmt(a)}</b>. Choisissez maintenant votre date de départ.</span>`;
+    r.innerHTML = `<span>Arrivée le <b>${fmt(a)}</b>. Choisissez maintenant votre date de départ.${notes.has(a) ? `<br>ℹ️ ${esc(notes.get(a))}` : ""}</span>`;
   } else r.hidden = true;
 }
 
@@ -155,7 +162,7 @@ document.getElementById("months").addEventListener("click", e => {
   else if (k <= a) { if (isBusy) return; a = k; }
   else if (nightsFree(a, k)) b = k;
   else { const r = document.getElementById("result"); r.hidden = false; r.className = "result bad";
-         r.innerHTML = "<span>Cette période contient des nuits occupées. Essayez d'autres dates.</span>"; a = isBusy ? null : k; b = null; return; }
+    r.innerHTML = "<span>Cette période contient des nuits occupées. Essayez d'autres dates.</span>"; a = isBusy ? null : k; b = null; return; }
   render();
 });
 document.getElementById("prev").onclick = () => { view = new Date(view.getFullYear(), view.getMonth()-1, 1); render(); };
@@ -169,8 +176,8 @@ document.getElementById("result").addEventListener("click", e => {
   const n = Math.round((parse(b)-parse(a))/864e5);
   const msg = `Bonjour${name ? ", je suis " + name : ""}. Je souhaite réserver Bò Jadin La du ${fmt(a,{day:"numeric",month:"long",year:"numeric"})} au ${fmt(b,{day:"numeric",month:"long",year:"numeric"})} (${n} nuit${n>1?"s":""}) pour ${guests}. \n\nEstimation :\n${quoteText(n, parseInt(guests), false)}\n\nEst-ce possible ? Merci !`;
   location.href = t === "wa"
-    ? `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(msg)}`
-    : `mailto:${CONTACT.email}?subject=${encodeURIComponent("Demande de réservation Bò Jadin La")}&body=${encodeURIComponent(msg)}`;
+      ? `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(msg)}`
+      : `mailto:${CONTACT.email}?subject=${encodeURIComponent("Demande de réservation Bò Jadin La")}&body=${encodeURIComponent(msg)}`;
 });
 document.getElementById("mail").href = `mailto:${CONTACT.email}?subject=${encodeURIComponent("Réservation Bò Jadin La")}`;
 document.getElementById("wa").href = `https://wa.me/${CONTACT.whatsapp}`;
@@ -179,22 +186,27 @@ const load = u => fetch(u, {cache:"no-cache"}).then(r => r.json()).catch(() => (
 Promise.all([load("data/bookings.json"), load("data/manual.json"), load("data/tarifs.json")]).then(([data, man, tar]) => {
   if (tar.nightly) T = {...T, ...tar};
 
-  [...(data.bookings || []), ...(man.bookings || [])].forEach(({start, end}) => {
-    for (let d = parse(start); key(d) < end; d = addDays(d,1)) busy.add(key(d));
+  const block = list => list.forEach(({start, end, note}) => {
+    for (let d = parse(start); key(d) < end; d = addDays(d,1)) { busy.add(key(d)); if (note) notes.set(key(d), note); }
   });
+  block(data.bookings || []);                       // Airbnb
+  (man.open || []).forEach(({from, to, note}) => {  // rouvert sur le site uniquement
+    for (let d = parse(from); key(d) <= to; d = addDays(d,1)) { busy.delete(key(d)); if (note) notes.set(key(d), note); }
+  });
+  block(man.bookings || []);                        // blocages manuels (prioritaires)
   if (data.updated) document.getElementById("updated").textContent = "Dernière modification du calendrier le " + new Date(data.updated).toLocaleString("fr-FR",{dateStyle:"medium",timeStyle:"short"});
   render();
 }).catch(() => { render(); });
 
 /* Météo du moment à Grand-Bourg (Open-Meteo, sans clé) */
 const WMO = c => c === 0 ? ["☀️","Grand soleil"] : c <= 2 ? ["🌤️","Peu nuageux"] : c === 3 ? ["☁️","Couvert"] :
-  c <= 48 ? ["🌫️","Brumeux"] : c <= 57 ? ["🌦️","Bruine"] : c <= 67 ? ["🌧️","Pluie"] : c <= 82 ? ["🌦️","Averses"] : c >= 95 ? ["⛈️","Orage"] : ["🌴","Variable"];
+    c <= 48 ? ["🌫️","Brumeux"] : c <= 57 ? ["🌦️","Bruine"] : c <= 67 ? ["🌧️","Pluie"] : c <= 82 ? ["🌦️","Averses"] : c >= 95 ? ["⛈️","Orage"] : ["🌴","Variable"];
 fetch("https://api.open-meteo.com/v1/forecast?latitude=15.88&longitude=-61.31&current=temperature_2m,weather_code,wind_speed_10m&timezone=America%2FGuadeloupe")
-  .then(r => r.json()).then(d => {
-    const c = d.current, [icon, label] = WMO(c.weather_code), el = document.getElementById("meteo");
-    el.textContent = `${icon} ${Math.round(c.temperature_2m)} °C à Grand-Bourg · ${label} · vent ${Math.round(c.wind_speed_10m)} km/h`;
-    el.hidden = false;
-  }).catch(() => {});
+    .then(r => r.json()).then(d => {
+  const c = d.current, [icon, label] = WMO(c.weather_code), el = document.getElementById("meteo");
+  el.textContent = `${icon} ${Math.round(c.temperature_2m)} °C à Grand-Bourg · ${label} · vent ${Math.round(c.wind_speed_10m)} km/h`;
+  el.hidden = false;
+}).catch(() => {});
 
 /* Carrousel de la section « Le logement » */
 const track = document.getElementById("track"), count = document.getElementById("count");
