@@ -6,7 +6,18 @@ const ROOM = "1686923054634848912";
 const EXT = "png"; // changez en "jpg" ou "webp" si vous convertissez vos photos
 const PHOTOS = Array.from({length:10}, (_, i) => i + 1).map(n => `images/${n}.${EXT}`);
 // Description affichée sous la photo (optionnel, "" = rien). Une entrée par photo, dans l'ordre.
-const CAPTIONS = ["", "", "", "", "", "", "", "", "", ""];
+const ALTS = [
+  "Chambre climatisée avec lit double 160 cm, Bò Jadin La, Grand-Bourg",
+  "Chambre ouvrant sur la terrasse et le jardin tropical",
+  "Coin petit-déjeuner sur la terrasse : machine à café, bouilloire, grille-pain",
+  "Dressing avec étagères et porte coulissante ancienne",
+  "Salle d'eau avec douche à l'italienne et carrelage feuillage",
+  "Accès à la salle d'eau depuis la chambre",
+  "Terrasse privée de 15 m² avec fauteuils et vue sur le jardin",
+  "Entrée indépendante du logement et terrasse couverte",
+  "Vue sur le jardin tropical depuis la terrasse",
+  "Terrasse en soirée avec coin cuisine"
+];
 
 /* Nav, reveal */
 const nav = document.getElementById("nav");
@@ -21,7 +32,7 @@ let cur = 0;
 const show = i => {
   cur = (i + PHOTOS.length) % PHOTOS.length;
   lbImg.src = PHOTOS[cur];
-  lbImg.alt = `Bò Jadin La, photo ${cur + 1}`;
+  lbImg.alt = ALTS[cur];
   lbCap.textContent = CAPTIONS[cur] || "";
   lb.hidden = false;
 };
