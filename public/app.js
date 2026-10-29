@@ -82,12 +82,16 @@ fetch("data/reviews.json", {cache:"no-cache"}).then(r => r.json()).then(r => {
   document.getElementById("avis").hidden = false;
   const rate = (v, label) => {
     const num = parseFloat(v) || 0;
-    const fullStars = Math.round(num);
     let starsHtml = '';
     for (let i = 1; i <= 5; i++) {
-      starsHtml += `<span style="color: ${i <= fullStars ? '#f4b41a' : '#dfe9e8'};">★</span>`;
+      // Calcule le pourcentage de remplissage pour chaque étoile (0% à 100%)
+      const fill = Math.max(0, Math.min(1, num - (i - 1))) * 100;
+      starsHtml += `<span style="position:relative; display:inline-block; color: #dfe9e8;">
+        ★
+        <span style="position:absolute; top:0; left:0; overflow:hidden; width:${fill}%; color: #f4b41a; white-space:nowrap;">★</span>
+      </span>`;
     }
-    return `<span class="rate"><span style="font-size:0.5em;font-weight:600;margin-right:6px;">${fr(v)}</span><span style="font-size:0.5em;display:inline-flex;gap:1px;">${starsHtml}</span><small>${label}</small></span>`;
+    return `<span class="rate"><span style="font-size:0.75em;font-weight:600;margin-right:6px;">${fr(v)}</span><span style="font-size:0.7em;display:inline-flex;gap:1px;vertical-align:middle;">${starsHtml}</span><small>${label}</small></span>`;
   };
   const g = r.google || {};
   document.getElementById("rating-h").innerHTML =
