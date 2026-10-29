@@ -653,21 +653,14 @@ p {
 .updated { font-size: .75rem; margin: 1rem 0 0; text-align: right; }
 
 /* ===== Avis ===== */
-/* 1. Les icônes dans les équipements du logement (PLUS GRANDES) */
-.picto .ic svg {
-  width: 32px !important;
-  height: 32px !important;
-}
-
-/* 2. Les icônes de plateformes dans les avis / commentaires (PETITES) */
 blockquote svg,
 .quotes svg,
 #rating-h svg,
 .rate svg {
-  width: 1rem !important;
-  height: 1rem !important;
-  max-width: 16px !important;
-  max-height: 16px !important;
+  width: 2rem !important;
+  height: 2rem !important;
+  max-width: 25px !important;
+  max-height: 250px !important;
   vertical-align: middle;
 }
 
