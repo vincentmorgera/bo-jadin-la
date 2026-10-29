@@ -1,159 +1,195 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bò Jadin La · Dépendance de charme à Marie-Galante</title>
-  <meta name="description" content="Dépendance climatisée de 16 m² avec terrasse privée à Grand-Bourg, Marie-Galante. À deux pas de l'Habitation Murat et de la plage. ">
-  <meta property="og:title" content="Bò Jadin La · Marie-Galante">
-  <meta property="og:image" content="images/1.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Nunito+Sans:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <script defer src="/_vercel/insights/script.js"></script>
-</head>
-<body>
 
-<nav class="nav" id="nav">
-  <a class="logo" href="#top">Bò Jadin La</a>
-  <div class="links">
+  <title>Location à Grand-Bourg, Marie-Galante · Bò Jadin La</title>
+  <meta name="description" content="Logement climatisé avec terrasse privée à Grand-Bourg, Marie-Galante : 600 m de la plage, 666 m du château Murat (Terre de Blues). Sans frais de plateforme.">
+  <link rel="canonical" href="https://bojadinla.vercel.app/">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="Bò Jadin La">
+  <meta property="og:title" content="Bò Jadin La · Location à Grand-Bourg, Marie-Galante">
+  <meta property="og:description" content="Logement climatisé avec terrasse privée et jardin tropical, à 600 m de la plage et 666 m du château Murat.">
+  <meta property="og:url" content="https://bojadinla.vercel.app/">
+  <meta property="og:image" content="https://bojadinla.vercel.app/images/1.png">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="stylesheet" href="style.css">
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LodgingBusiness",
+      "name": "Bò Jadin La",
+      "description": "Logement indépendant climatisé avec terrasse privée de 15 m² et jardin tropical, à Grand-Bourg, Marie-Galante.",
+      "url": "https://bojadinla.vercel.app/",
+      "image": "https://bojadinla.vercel.app/images/1.png",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Grand-Bourg",
+        "postalCode": "97112",
+        "addressRegion": "Guadeloupe",
+        "addressCountry": "FR"
+      },
+      "amenityFeature": [
+        { "@type": "LocationFeatureSpecification", "name": "Climatisation", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Wifi", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Terrasse privée", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Douche à l'italienne", "value": true }
+      ],
+      "knowsLanguage": "fr"
+    }
+  </script>
+</head>
+
+<body id="top">
+
+<header class="site-header">
+  <a class="brand" href="#top">Bò Jadin La</a>
+  <nav aria-label="Navigation principale">
     <a href="#logement">Le logement</a>
     <a href="#galerie">Photos</a>
     <a href="#disponibilites">Disponibilités</a>
     <a href="#avis">Avis</a>
-    <a class="pill" href="#disponibilites">Réserver</a>
-  </div>
-</nav>
-
-<header class="hero" id="top">
-  <div class="hero-inner">
-    <h1>Bò Jadin La</h1>
-    <p>Votre petit nid tropical à Grand-Bourg, Marie-Galante</p>
-    <div class="meteo" id="meteo" hidden></div>
-    <div class="cta">
-      <a class="btn" href="#disponibilites">Voir les disponibilités</a>
-      <a class="btn ghost" href="#galerie">Découvrir en photos</a>
-    </div>
-  </div>
-  <div class="arch"><img src="images/1.png" alt="Bò Jadin La, dépendance à Grand-Bourg"></div>
+    <a class="nav-cta" href="#disponibilites">Réserver</a>
+  </nav>
 </header>
 
-<section class="wrap reveal" id="logement">
-  <div class="logement-grid">
-    <div class="carousel">
-      <div class="track" id="track"></div>
-      <button class="c-btn" id="c-prev" aria-label="Photo précédente">‹</button>
-      <button class="c-btn" id="c-next" aria-label="Photo suivante">›</button>
-      <span class="count" id="count"></span>
-    </div>
-    <div>
+<main>
 
-      <h2>Calme, lumineux et tout confort</h2>
-      <p>Une dépendance fraîchement rénovée avec chambre climatisée (lit double 160), salle d'eau attenante avec douche à l'italienne, WC indépendant et grande terrasse de 15 m² au milieu d'un jardin verdoyant.</p>
-      <p>À moins d'1 km de l'Habitation Murat et de la plage du Bourg, et à moins de 2 km du centre de Grand-Bourg. Vos hôtes Gwen et Vincent vivent à proximité, mais votre intimité est préservée.</p>
-      <p class="note">🐾 Un chien et des chats vivent dans la propriété.</p>
-    </div>
-  </div>
-  <ul class="picto">
-    <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12h20M12 2v20M20 16l-4-4 4-4M4 8l4 4-4 4M16 4l-4 4-4-4M8 20l4-4 4 4"/></svg></span>Climatisation</li>
-    <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8M5 10v10h14V10M10 20v-6h4v6"/></svg></span>Chambre 16 m²</li>
-    <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 8 0 0 1 18 0z"/><path d="M12 4c-2.4 2.5-3.2 5-3.2 8M12 4c2.4 2.5 3.2 5 3.2 8M12 12v9M7 21h10"/></svg></span>Terrasse 15 m²</li>
-    <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6v13M3 16h18v3M21 16v-3a3 3 0 0 0-3-3h-7v6"/><circle cx="7.5" cy="12" r="1.7"/></svg></span>Lit double 160 cm</li>
-    <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9zM17 10h1.5a2.5 2.5 0 0 1 0 5H17M8 3v3M12 3v3"/></svg></span>Coin petit-déjeuner<small>minibar, bouilloire, machine à café</small></li>
-    <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19.5" r=".8" fill="currentColor"/></svg></span>Wifi</li>
-  </ul>
-</section>
-
-<section class="wrap reveal" id="galerie">
-
-  <h2>Un aperçu des lieux</h2>
-  <div class="gallery" id="gallery"></div>
-</section>
-
-<section class="wrap reveal" id="disponibilites">
-
-  <h2>Disponibilités</h2>
-  <p class="cal-hint">Sélectionnez vos dates de départ et d'arrivée pour nous faire une demande de réservation.</p>
-  <div class="cal-card">
-    <div class="cal-top">
-      <div class="nav-btns">
-        <button id="prev" aria-label="Mois précédent">‹</button>
-        <button id="next" aria-label="Mois suivant">›</button>
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-text">
+      <h1>Bò Jadin La</h1>
+      <p class="tagline">Votre petit nid tropical à Grand-Bourg, Marie-Galante</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#disponibilites">Voir les disponibilités</a>
+        <a class="btn btn-secondary" href="#galerie">Découvrir en photos</a>
       </div>
     </div>
-    <div class="months" id="months"></div>
-    <div class="legend">
-      <span><i class="dot free"></i>Disponible</span>
-      <span><i class="dot booked"></i>Occupé</span>
-      <span><i class="dot sel"></i>Votre sélection</span>
+    <div class="hero-slider" id="hero-slider">
+      <img id="hero-image" src="images/1.png" alt="Bò Jadin La, logement indépendant à Grand-Bourg, Marie-Galante" fetchpriority="high">
+      <button class="slider-prev" id="hero-prev" type="button" aria-label="Photo précédente">‹</button>
+      <button class="slider-next" id="hero-next" type="button" aria-label="Photo suivante">›</button>
     </div>
-    <div class="result" id="result" hidden></div>
-    <p class="updated" id="updated"></p>
-  </div>
-</section>
+  </section>
 
-<section class="wrap reveal" id="avis" hidden>
-  <h2>Avis voyageurs</h2>
-  <h2 id="rating-h"></h2>
-  <p class="updated" id="rev-updated"></p>
-  <div class="tags" id="tags"></div>
-  <div class="quotes" id="quotes"></div>
-  <button class="more" id="more-rev" hidden>Voir les avis précédents</button>
-  <a class="more" id="g-review" href="#" target="_blank" rel="noopener" hidden>Laisser un avis sur Google</a>
-</section>
+  <!-- LOGEMENT -->
+  <section class="section" id="logement">
+    <h2>Calme, lumineux et tout confort</h2>
+    <p>Bò Jadin La est un logement indépendant de 16 m², fraîchement rénové, attenant à la maison de vos hôtes Gwen et Vincent. Entrée et terrasse sont privées, l'intimité est préservée. Chambre climatisée avec lit double 160 cm, salle d'eau attenante avec douche à l'italienne, WC indépendant.</p>
+    <p>La terrasse couverte de 15 m² s'ouvre sur un jardin verdoyant : c'est là que se prend le petit-déjeuner, avec minibar, bouilloire, machine à café et grille-pain.</p>
+    <p class="note">🐾 Un chien et des chats vivent dans la propriété.</p>
 
-<section class="wrap reveal" id="acces">
-  <h2>Comment venir</h2>
-  <p>Bò Jadin La se trouve à Grand-Bourg, à moins d'1 km de l'Habitation Murat et de la plage du Bourg. Le repère sur la carte indique l'emplacement du logement ; les indications d'accès complémentaires vous sont transmises à la confirmation de votre réservation.</p>
-  <div id="map-box" style="min-height:320px;border-radius:16px;overflow:hidden;background:#eef2ee;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.75rem;padding:1rem;text-align:center">
-    <button class="btn" id="map-load" type="button">Afficher la carte</button>
-    <p class="note">En affichant la carte, vous chargez un service externe (OpenStreetMap). Voir la <a href="confidentialite.html">politique de confidentialité</a>.</p>
-  </div>
-</section>
+    <ul class="amenities">
+      <li><span class="icon" aria-hidden="true">❄️</span> Climatisation</li>
+      <li><span class="icon" aria-hidden="true">📐</span> Chambre 16 m²</li>
+      <li><span class="icon" aria-hidden="true">🌿</span> Terrasse 15 m²</li>
+      <li><span class="icon" aria-hidden="true">🛏️</span> Lit double 160 cm</li>
+      <li><span class="icon" aria-hidden="true">☕</span> Coin petit-déjeuner <small>minibar, bouilloire, machine à café, grille-pain</small></li>
+      <li><span class="icon" aria-hidden="true">📶</span> Wifi</li>
+    </ul>
+  </section>
 
-<script>
-  document.getElementById('map-load').addEventListener('click', function () {
-    var box = document.getElementById('map-box');
-    box.style.padding = '0';
-    box.style.display = 'block';
-    box.innerHTML = '<iframe title="Carte : emplacement de Bò Jadin La" width="100%" height="380" style="border:0;display:block" loading="lazy" referrerpolicy="no-referrer" src="https://www.openstreetmap.org/export/embed.html?bbox=-61.311%2C15.875%2C-61.295%2C15.885&amp;layer=mapnik&amp;marker=15.880071%2C-61.303067"></iframe>';
-  });
-</script>
+  <!-- AUTOUR DU LOGEMENT -->
+  <section class="section" id="autour">
+    <h2>Autour du logement, à Grand-Bourg</h2>
+    <p>Plage, château Murat et bourg sont accessibles sans quitter le quartier. Chaque année, l'Habitation Murat accueille le festival <a href="terre-de-blues.html">Terre de Blues</a> : pensez à réserver tôt. : pensez à réserver tôt.</p>
+    <ul class="distances">
+      <li><strong>700 m</strong> château Murat (Habitation Murat), site du festival <a href="terre-de-blues.html">Terre de Blues</a></li>
+      <li><strong>800 m</strong> base nautique et plage du 3<sup>e</sup> Pont</li>
+      <li><strong>1,7 km</strong> marché</li>
+      <li><strong>1,8 km</strong> gare maritime</li>
+    </ul>
+  </section>
 
-<section class="wrap reveal">
-  <div class="why">
-    <div><b>💸 Sans frais de plateforme</b><span>Le prix que vous voyez est celui que vous payez.</span></div>
-    <div><b>💬 Échange direct</b><span>Vous parlez directement avec Gwen et Vincent, vos hôtes.</span></div>
-    <div><b>🤝 Réservation confirmée sous 24 h</b><span>Nous validons ensemble les dates et les modalités.</span></div>
-  </div>
-  <div class="host" id="contact">
+  <!-- GALERIE (alimentée par app.js) -->
+  <section class="section" id="galerie">
+    <h2>Un aperçu des lieux</h2>
+    <div class="gallery" id="gallery"></div>
+  </section>
+
+  <!-- DISPONIBILITÉS (alimenté par app.js) -->
+  <section class="section" id="disponibilites">
+    <h2>Disponibilités</h2>
+    <p class="section-intro">Sélectionnez vos dates d'arrivée et de départ : le prix et la disponibilité s'affichent, puis envoyez-nous votre demande de réservation.</p>
+
+    <div class="calendar-nav">
+      <button id="cal-prev" type="button" aria-label="Mois précédent">‹</button>
+      <button id="cal-next" type="button" aria-label="Mois suivant">›</button>
+    </div>
+    <div class="calendar" id="calendar"></div>
+
+    <ul class="legend">
+      <li class="legend-free">Disponible</li>
+      <li class="legend-busy">Occupé</li>
+      <li class="legend-selected">Votre sélection</li>
+    </ul>
+    <div class="booking-summary" id="booking-summary"></div>
+  </section>
+
+  <!-- AVIS (alimenté par app.js / data/reviews.json) -->
+  <section class="section" id="avis">
+    <h2>Avis des voyageurs</h2>
+    <div class="reviews" id="reviews"></div>
+  </section>
+
+  <!-- ACCÈS -->
+  <section class="section" id="acces">
+    <h2>Comment venir</h2>
+    <p>Bò Jadin La se trouve à Grand-Bourg, à 666 m du château Murat et à 600 m de la plage. Le repère sur la carte indique l'emplacement du logement ; les indications d'accès complémentaires vous sont transmises à la confirmation de votre réservation.</p>
+    <button class="btn btn-secondary" id="map-load" type="button">Afficher la carte</button>
+    <p class="map-note">En affichant la carte, vous chargez un service externe (OpenStreetMap). Voir la <a href="confidentialite.html">politique de confidentialité</a>.</p>
+    <div class="map" id="map" hidden></div>
+  </section>
+
+  <!-- ENGAGEMENTS -->
+  <section class="section" id="engagements">
+    <h2>Réserver en direct</h2>
+    <ul class="assurances">
+      <li><strong>💸 Sans frais de plateforme</strong> Le prix que vous voyez est celui que vous payez.</li>
+      <li><strong>💬 Échange direct</strong> Vous parlez directement avec Gwen et Vincent, vos hôtes.</li>
+      <li><strong>🤝 Réservation confirmée sous 24 h</strong> Nous validons ensemble les dates et les modalités.</li>
+    </ul>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="section" id="contact">
     <h2>Une question avant de réserver ?</h2>
     <p>Écrivez-nous, nous vous répondons par e-mail dans les meilleurs délais.</p>
-    <form class="cform" id="contact-form">
-      <input name="name" placeholder="Votre nom et prénom" autocomplete="given-name" required>
-      <input name="email" type="email" placeholder="Votre e-mail" autocomplete="email" required>
-      <textarea name="message" placeholder="Votre message" rows="5" required></textarea>
-      <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <p class="note">En envoyant ce message, vous acceptez que vos données soient utilisées pour vous répondre. Voir la <a href="confidentialite.html">politique de confidentialité</a>.</p>
-      <button class="btn" type="submit">Envoyer</button>
-      <p class="form-status" id="contact-status" role="status"></p>
+    <form id="contact-form" novalidate>
+      <label>Nom
+        <input type="text" name="name" autocomplete="name" required>
+      </label>
+      <label>E-mail
+        <input type="email" name="email" autocomplete="email" required>
+      </label>
+      <label>Message
+        <textarea name="message" rows="5" required></textarea>
+      </label>
+      <p class="form-note">En envoyant ce message, vous acceptez que vos données soient utilisées pour vous répondre. Voir la <a href="confidentialite.html">politique de confidentialité</a>.</p>
+      <button class="btn btn-primary" type="submit">Envoyer</button>
+      <p class="form-status" id="form-status" role="status"></p>
     </form>
-  </div>
-</section>
+  </section>
 
-<footer>
+</main>
+
+<footer class="site-footer">
   <p>Bò Jadin La · Grand-Bourg, Marie-Galante · Guadeloupe</p>
-  <p><a href="mentions-legales.html">Mentions légales</a> · <a href="confidentialite.html">Confidentialité</a> · <a href="conditions.html">Conditions de réservation</a></p>
+  <p>
+    <a href="mentions-legales.html">Mentions légales</a> ·
+    <a href="confidentialite.html">Confidentialité</a> ·
+    <a href="conditions.html">Conditions de réservation</a>
+    <a href="terre-de-blues.html">Séjourner pour Terre de Blues</a>
+  </p>
   <p>© 2026 Tous droits réservés</p>
 </footer>
 
-<div class="lightbox" id="lb" hidden>
-  <button id="lb-x" aria-label="Fermer">×</button>
-  <button class="lb-nav" id="lb-prev" aria-label="Photo précédente">‹</button>
-  <figure><img alt=""><figcaption id="lb-cap"></figcaption></figure>
-  <button class="lb-nav" id="lb-next" aria-label="Photo suivante">›</button>
-</div>
-<script src="app.js"></script>
+<script src="app.js" defer></script>
 </body>
 </html>

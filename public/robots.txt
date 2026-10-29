@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://bojadinla.vercel.app/sitemap.xml
