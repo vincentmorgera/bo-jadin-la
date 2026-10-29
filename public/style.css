@@ -61,11 +61,11 @@ p {
   padding: 6rem 1.25rem;
 }
 
-#galerie, #disponibilites, #avis {
+#galerie, #disponibilites, #avis, #acces {
   text-align: center;
 }
 
-#logement h2, #galerie h2, #disponibilites h2, #avis > h2:not(#rating-h) {
+#logement h2, #galerie h2, #disponibilites h2, #acces h2, #avis > h2:not(#rating-h) {
   color: var(--azur);
 }
 
@@ -653,6 +653,24 @@ p {
 .updated { font-size: .75rem; margin: 1rem 0 0; text-align: right; }
 
 /* ===== Avis ===== */
+/* 1. Les icônes dans les équipements du logement (PLUS GRANDES) */
+.picto .ic svg {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+/* 2. Les icônes de plateformes dans les avis / commentaires (PETITES) */
+blockquote svg,
+.quotes svg,
+#rating-h svg,
+.rate svg {
+  width: 1rem !important;
+  height: 1rem !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
+  vertical-align: middle;
+}
+
 .gs { color: #f4b41a; }
 
 #rating-h {

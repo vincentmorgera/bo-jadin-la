@@ -80,11 +80,18 @@ const logo = s => { const k = String(s || "").toLowerCase() === "google" ? "goog
 fetch("data/reviews.json", {cache:"no-cache"}).then(r => r.json()).then(r => {
   if (!r.rating && !(r.testimonials || []).length) return;
   document.getElementById("avis").hidden = false;
-  const rate = (v, label) => `<span class="rate"><span><span class="gs">★</span> ${fr(v)}</span><small>${label}</small></span>`;
+  const rate = (v, label) => {
+    const num = parseFloat(v) || 0;
+    const fullStars = Math.round(num);
+    let starsHtml = '';
+    for (let i = 1; i <= 5; i++) {
+      starsHtml += `<span style="color: ${i <= fullStars ? '#f4b41a' : '#dfe9e8'};">★</span>`;
+    }
+    return `<span class="rate"><span style="font-size:0.5em;font-weight:600;margin-right:6px;">${fr(v)}</span><span style="font-size:0.5em;display:inline-flex;gap:1px;">${starsHtml}</span><small>${label}</small></span>`;
+  };
   const g = r.google || {};
   document.getElementById("rating-h").innerHTML =
-      (r.rating ? rate(r.rating, `${r.count} commentaire${r.count>1?"s":""} sur ${logo("airbnb")}`) : "") +
-      (g.rating && g.count ? rate(g.rating, `${g.count} avis sur ${logo("google")}`) : "");
+      (r.rating ? rate(r.rating, `${r.count + g.count} avis  ${logo("airbnb")} ${logo("google")}`) : "");
   if (g.url) { const gl = document.getElementById("g-review"); gl.href = g.url; gl.hidden = false; }
   document.getElementById("tags").innerHTML = (r.tags || []).map(t => `<span>${esc(t)}</span>`).join("");
   const list = (r.testimonials || []).slice().sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
