@@ -73,6 +73,7 @@
 <section class="wrap reveal" id="disponibilites">
 
   <h2>Disponibilités</h2>
+  <p class="cal-hint">Sélectionnez vos dates de départ et d'arrivée pour nous faire une demande de réservation.</p>
   <div class="cal-card">
     <div class="cal-top">
       <div class="nav-btns">
@@ -98,6 +99,7 @@
   <div class="tags" id="tags"></div>
   <div class="quotes" id="quotes"></div>
   <button class="more" id="more-rev" hidden>Voir les avis précédents</button>
+  <a class="more" id="g-review" href="#" target="_blank" rel="noopener" hidden>Laisser un avis sur Google</a>
 </section>
 
 <section class="wrap reveal">
@@ -106,19 +108,22 @@
     <div><b>💬 Échange direct</b><span>Vous parlez directement avec Gwen et Vincent, vos hôtes.</span></div>
     <div><b>🤝 Réservation confirmée sous 24 h</b><span>Nous validons ensemble les dates et les modalités.</span></div>
   </div>
-  <div class="host">
+  <div class="host" id="contact">
     <h2>Une question avant de réserver ?</h2>
-    <p>Écrivez-nous, nous répondons en général dans l'heure.</p>
-    <div class="cta">
-      <a class="btn" id="wa" href="#">WhatsApp</a>
-      <a class="btn ghost" id="mail" href="#">E-mail</a>
-    </div>
+    <p>Écrivez-nous, nous vous répondons par e-mail dans les meilleurs délais.</p>
+    <form class="cform" id="contact-form">
+      <input name="name" placeholder="Votre nom et prénom" autocomplete="given-name" required>
+      <input name="email" type="email" placeholder="Votre e-mail" autocomplete="email" required>
+      <textarea name="message" placeholder="Votre message" rows="5" required></textarea>
+      <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button class="btn" type="submit">Envoyer</button>
+      <p class="form-status" id="contact-status" role="status"></p>
+    </form>
   </div>
 </section>
 
 <footer>
   <p>Bò Jadin La · Grand-Bourg, Marie-Galante · Guadeloupe</p>
-  <p><a href="tel:+590690533906">+590 6 90 53 39 06</a> · <a href="mailto:bojadinla@gmail.com">bojadinla@gmail.com</a></p>
   <p>© 2026 Tous droits réservés</p>
 </footer>
 

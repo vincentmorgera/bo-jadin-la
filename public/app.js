@@ -1,8 +1,6 @@
 /* ====== À PERSONNALISER ====== */
-const CONTACT = {
-  whatsapp: "590690533906",        // numéro international sans + ni espaces
-  email: "bojadinla@gmail.com"
-};
+const FORM = { endpoint: "https://api.web3forms.com/submit", key: "56a3f346-5639-4143-92d8-807b3aa492c2" };
+
 /* ============================== */
 const ROOM = "1686923054634848912";
 const EXT = "png"; // changez en "jpg" ou "webp" si vous convertissez vos photos
@@ -55,14 +53,43 @@ lb.addEventListener("touchend", e => {
 /* Avis (données dans data/reviews.json) */
 const esc = t => String(t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const fr = v => String(v).replace(".", ",");
+const sendForm = async ({website, ...data}) => {
+  if (website) return true;                         // champ piège rempli : robot, on ignore
+  const res = await fetch(FORM.endpoint, {
+    method: "POST",
+    headers: {"Content-Type":"application/json", Accept:"application/json"},
+    body: JSON.stringify({access_key: FORM.key, from_name: "Site Bò Jadin La", replyto: data.email, ...data})
+  });
+  const j = await res.json().catch(() => ({}));
+  return res.ok && j.success !== false;
+};
+const cf = document.getElementById("contact-form"), cs = document.getElementById("contact-status");
+cf.addEventListener("submit", async e => {
+  e.preventDefault();
+  const btn = cf.querySelector("button"), d = Object.fromEntries(new FormData(cf));
+  btn.disabled = true; cs.textContent = "Envoi en cours…";
+  const ok = await sendForm({...d, subject: `Question de ${d.name} (site Bò Jadin La)`}).catch(() => false);
+  cs.textContent = ok ? "Merci, votre message est bien envoyé. Nous vous répondons rapidement par e-mail." : "L'envoi a échoué. Merci de réessayer dans un instant.";
+  btn.disabled = false; if (ok) cf.reset();
+});
+const LOGO = {
+  google: `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>`,
+  airbnb: `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#FF5A5F" fill-rule="evenodd" d="M12 2.2C11 2.2 10.2 2.9 9.6 4.2L3.4 17.4C2.3 19.8 3.8 22 6 22C7.8 22 9.8 20.6 12 18.2C14.2 20.6 16.2 22 18 22C20.2 22 21.7 19.8 20.6 17.4L14.4 4.2C13.8 2.9 13 2.2 12 2.2ZM12 18.2C10 15.9 8.4 13.6 8.4 11.8C8.4 9.5 10 7.9 12 7.9C14 7.9 15.6 9.5 15.6 11.8C15.6 13.6 14 15.9 12 18.2ZM12 16.3C10.6 14.7 9.8 13.2 9.8 12C9.8 10.8 10.7 9.8 12 9.8C13.3 9.8 14.2 10.8 14.2 12C14.2 13.2 13.4 14.7 12 16.3Z"/></svg>`
+};
+const logo = s => { const k = String(s || "").toLowerCase() === "google" ? "google" : "airbnb", n = k === "google" ? "Google" : "Airbnb"; return `<span class="src" role="img" aria-label="${n}" title="${n}">${LOGO[k]}</span>`; };
 fetch("data/reviews.json", {cache:"no-cache"}).then(r => r.json()).then(r => {
   if (!r.rating && !(r.testimonials || []).length) return;
   document.getElementById("avis").hidden = false;
-  if (r.rating) document.getElementById("rating-h").innerHTML = `<span><span class="gs">★</span> ${fr(r.rating)}</span><small>${r.count} commentaire${r.count>1?"s":""} sur Airbnb</small>`;
+  const rate = (v, label) => `<span class="rate"><span><span class="gs">★</span> ${fr(v)}</span><small>${label}</small></span>`;
+  const g = r.google || {};
+  document.getElementById("rating-h").innerHTML =
+      (r.rating ? rate(r.rating, `${r.count} commentaire${r.count>1?"s":""} sur ${logo("airbnb")}`) : "") +
+      (g.rating && g.count ? rate(g.rating, `${g.count} avis sur ${logo("google")}`) : "");
+  if (g.url) { const gl = document.getElementById("g-review"); gl.href = g.url; gl.hidden = false; }
   document.getElementById("tags").innerHTML = (r.tags || []).map(t => `<span>${esc(t)}</span>`).join("");
   const list = (r.testimonials || []).slice().sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
   const monthFr = d => /^\d{4}-\d{2}/.test(d) ? new Date(+d.slice(0,4), +d.slice(5,7) - 1, 1).toLocaleDateString("fr-FR", {month:"long", year:"numeric"}) : d;
-  const card = t => `<blockquote>${t.stars ? `<div class="gs stars">${"★".repeat(Math.min(5, +t.stars || 0))}</div>` : ""}“${esc(t.text)}”<cite>${esc(t.author)}${t.date ? " · " + esc(monthFr(t.date)) : ""}</cite></blockquote>`;
+  const card = t => `<blockquote>${t.stars ? `<div class="gs stars">${"★".repeat(Math.min(5, +t.stars || 0))}</div>` : ""}“${esc(t.text)}”<cite>${esc(t.author)}${t.date ? " · " + esc(monthFr(t.date)) : ""} · ${logo(t.source)}</cite></blockquote>`;
   const quotes = document.getElementById("quotes"), moreBtn = document.getElementById("more-rev");
   let shown = 0;
   const showMore = () => {
@@ -142,11 +169,14 @@ function render() {
     r.className = "result col"; r.hidden = false;
     r.innerHTML = `<div class="ok">✅ <b>${fmt(a)} → ${fmt(b)}</b> · ${n} nuit${n>1?"s":""} disponible${n>1?"s":""}</div>
       ${stayNotes().map(t => `<div class="stay-note">ℹ️ ${esc(t)}</div>`).join("")}
-      <div class="fields"><input id="f-name" placeholder="Votre prénom" autocomplete="given-name">
+            <div class="fields"><input id="f-name" placeholder="Votre nom et prénom" autocomplete="given-name" required>
+      <input id="f-email" type="email" placeholder="Votre e-mail" autocomplete="email" required>
       <select id="f-guests"><option>1 voyageur</option><option>2 voyageurs</option></select></div>
+      <textarea id="f-msg" class="msg" rows="3" placeholder="Un message pour vos hôtes (facultatif)"></textarea>
+      <input class="hp" id="f-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div class="quote" id="quote"></div>
-      <div class="actions"><button class="btn" data-send="wa">Demander via WhatsApp</button>
-      <button class="btn alt" data-send="mail">Demander par e-mail</button></div>
+      <div class="actions"><button class="btn" data-send="req">Envoyer ma demande</button></div>
+      <p class="form-status" id="req-status" role="status"></p>
       <a class="airbnb-link" href="https://www.airbnb.fr/rooms/${ROOM}?check_in=${a}&check_out=${b}&adults=1" target="_blank" rel="noopener">ou réserver via Airbnb</a>`;
     updateQuote();
   } else if (a) {
@@ -169,18 +199,17 @@ document.getElementById("prev").onclick = () => { view = new Date(view.getFullYe
 document.getElementById("next").onclick = () => { view = new Date(view.getFullYear(), view.getMonth()+1, 1); render(); };
 
 document.getElementById("result").addEventListener("change", e => e.target.id === "f-guests" && updateQuote());
-document.getElementById("result").addEventListener("click", e => {
-  const t = e.target.dataset.send; if (!t) return;
-  const name = document.getElementById("f-name").value.trim();
-  const guests = document.getElementById("f-guests").value;
-  const n = Math.round((parse(b)-parse(a))/864e5);
-  const msg = `Bonjour${name ? ", je suis " + name : ""}. Je souhaite réserver Bò Jadin La du ${fmt(a,{day:"numeric",month:"long",year:"numeric"})} au ${fmt(b,{day:"numeric",month:"long",year:"numeric"})} (${n} nuit${n>1?"s":""}) pour ${guests}. \n\nEstimation :\n${quoteText(n, parseInt(guests), false)}\n\nEst-ce possible ? Merci !`;
-  location.href = t === "wa"
-      ? `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(msg)}`
-      : `mailto:${CONTACT.email}?subject=${encodeURIComponent("Demande de réservation Bò Jadin La")}&body=${encodeURIComponent(msg)}`;
+document.getElementById("result").addEventListener("click", async e => {
+  if (e.target.dataset.send !== "req") return;
+  const f = id => document.getElementById(id);
+  if (![f("f-name"), f("f-email")].every(i => i.reportValidity())) return;
+  const btn = e.target, st = f("req-status"), guests = f("f-guests").value, n = nightsCount();
+  btn.disabled = true; st.textContent = "Envoi en cours…";
+  const message = `Demande de réservation du ${fmt(a,{day:"numeric",month:"long",year:"numeric"})} au ${fmt(b,{day:"numeric",month:"long",year:"numeric"})} (${n} nuit${n>1?"s":""}) pour ${guests}.\n\n${f("f-msg").value.trim()}\n\nEstimation :\n${quoteText(n, parseInt(guests), false)}`;
+  const ok = await sendForm({name: f("f-name").value.trim(), email: f("f-email").value.trim(), message, website: f("f-hp").value, subject: "Demande de réservation Bò Jadin La"}).catch(() => false);
+  if (ok) { st.textContent = "Demande envoyée ! Vos hôtes vous répondent rapidement par e-mail."; btn.hidden = true; }
+  else { st.textContent = "L'envoi a échoué. Merci de réessayer."; btn.disabled = false; }
 });
-document.getElementById("mail").href = `mailto:${CONTACT.email}?subject=${encodeURIComponent("Réservation Bò Jadin La")}`;
-document.getElementById("wa").href = `https://wa.me/${CONTACT.whatsapp}`;
 
 const load = u => fetch(u, {cache:"no-cache"}).then(r => r.json()).catch(() => ({bookings:[]}));
 Promise.all([load("data/bookings.json"), load("data/manual.json"), load("data/tarifs.json")]).then(([data, man, tar]) => {

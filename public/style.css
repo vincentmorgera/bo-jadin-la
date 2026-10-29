@@ -104,14 +104,23 @@ p{margin-bottom:1rem;color:var(--muted)}
 .actions{display:flex;gap:.6rem;flex-wrap:wrap}
 .actions .btn{cursor:pointer;font:inherit;font-weight:600;flex:1;min-width:190px}
 .airbnb-link{font-size:.82rem;color:var(--muted);text-align:center}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.msg,.cform input,.cform textarea{width:100%;padding:.8rem 1rem;border:1px solid var(--line);font:inherit;color:var(--ink);background:#fff}
+.msg,.cform textarea{resize:vertical}
+.cform{display:flex;flex-direction:column;gap:.8rem;max-width:520px;margin:1.5rem auto 0;text-align:left}
+.cform .btn{align-self:center;min-width:200px;cursor:pointer;font-family:inherit}
+.form-status{margin:0;min-height:1.4em;text-align:center;font-size:.9rem}
 .quote{background:#fff;border:1px dashed #8fcfcf;padding:.8rem 1rem;font-size:.92rem;line-height:1.8}
 .quote b{font-size:1.05rem}
 .updated{font-size:.75rem;margin:1rem 0 0;text-align:right}
 
 /* ===== Avis ===== */
 .gs{color:#f4b41a}
-#rating-h{display:flex;flex-direction:column;align-items:center;gap:.4rem;font-size:clamp(3.6rem,10vw,5.6rem);line-height:1;margin-bottom:1.5rem}
+#rating-h{display:flex;flex-direction:column;align-items:center;gap:.8rem;font-size:clamp(2.6rem,7vw,3.8rem);line-height:1;margin-bottom:1.5rem}
+.rate{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:.4rem 1.2rem}
 #rating-h small{font-family:'Nunito Sans',sans-serif;font-size:.78rem;font-weight:400;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+.src{display:inline-flex;vertical-align:middle;margin-left:.2em}
+.src svg{width:1.4em;height:1.4em}
 .tags{display:flex;justify-content:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem}
 .tags span{background:#fff;border:1px solid var(--line);padding:.35rem .9rem;letter-spacing:.1em;text-transform:uppercase;font-size:.7rem}
 .quotes{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem;margin:2rem 0 1.5rem;text-align:left}
