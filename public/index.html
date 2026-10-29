@@ -104,6 +104,24 @@
   <a class="more" id="g-review" href="#" target="_blank" rel="noopener" hidden>Laisser un avis sur Google</a>
 </section>
 
+<section class="wrap reveal" id="acces">
+  <h2>Comment venir</h2>
+  <p>Bò Jadin La se trouve à Grand-Bourg, à moins d'1 km de l'Habitation Murat et de la plage du Bourg. Le repère sur la carte indique l'emplacement du logement ; les indications d'accès complémentaires vous sont transmises à la confirmation de votre réservation.</p>
+  <div id="map-box" style="min-height:320px;border-radius:16px;overflow:hidden;background:#eef2ee;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.75rem;padding:1rem;text-align:center">
+    <button class="btn" id="map-load" type="button">Afficher la carte</button>
+    <p class="note">En affichant la carte, vous chargez un service externe (OpenStreetMap). Voir la <a href="confidentialite.html">politique de confidentialité</a>.</p>
+  </div>
+</section>
+
+<script>
+  document.getElementById('map-load').addEventListener('click', function () {
+    var box = document.getElementById('map-box');
+    box.style.padding = '0';
+    box.style.display = 'block';
+    box.innerHTML = '<iframe title="Carte : emplacement de Bò Jadin La" width="100%" height="380" style="border:0;display:block" loading="lazy" referrerpolicy="no-referrer" src="https://www.openstreetmap.org/export/embed.html?bbox=-61.311%2C15.875%2C-61.295%2C15.885&amp;layer=mapnik&amp;marker=15.880071%2C-61.303067"></iframe>';
+  });
+</script>
+
 <section class="wrap reveal">
   <div class="why">
     <div><b>💸 Sans frais de plateforme</b><span>Le prix que vous voyez est celui que vous payez.</span></div>
