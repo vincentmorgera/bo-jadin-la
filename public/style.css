@@ -748,6 +748,14 @@ blockquote cite {
   font-style: normal;
 }
 
+blockquote .rev-text {
+  max-height: 7.2rem; /* 4 lignes : 4 × 1.2rem × 1.5 */
+  overflow-y: auto;
+  padding-right: .5rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--azur) transparent;
+}
+
 .more {
   display: inline-block;
   margin: .5rem .9rem 3rem;

@@ -112,7 +112,7 @@ fetch("data/reviews.json", {cache:"no-cache"}).then(r => r.json()).then(r => {
   document.getElementById("tags").innerHTML = (r.tags || []).map(t => `<span>${esc(t)}</span>`).join("");
   const list = (r.testimonials || []).slice().sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
   const monthFr = d => /^\d{4}-\d{2}/.test(d) ? new Date(+d.slice(0,4), +d.slice(5,7) - 1, 1).toLocaleDateString("fr-FR", {month:"long", year:"numeric"}) : d;
-  const card = t => `<blockquote>${t.stars ? `<div class="gs stars">${"★".repeat(Math.min(5, +t.stars || 0))}</div>` : ""}“${esc(t.text)}”<cite>${esc(t.author)}${t.date ? " · " + esc(monthFr(t.date)) : ""} · ${logo(t.source)}</cite></blockquote>`;
+  const card = t => `<blockquote>${t.stars ? `<div class="gs stars">${"★".repeat(Math.min(5, +t.stars || 0))}</div>` : ""}<div class="rev-text">“${esc(t.text)}”</div><cite>${esc(t.author)}${t.date ? " · " + esc(monthFr(t.date)) : ""} · ${logo(t.source)}</cite></blockquote>`;
   const quotes = document.getElementById("quotes"), moreBtn = document.getElementById("more-rev");
   let shown = 0;
   const showMore = () => {
