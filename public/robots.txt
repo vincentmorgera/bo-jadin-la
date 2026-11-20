@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://bojadinla.iledemariegalante.comsitemap.xml
+Sitemap: https://bojadinla.iledemariegalante.com/sitemap.xml
