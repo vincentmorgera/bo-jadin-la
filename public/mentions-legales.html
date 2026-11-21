@@ -54,11 +54,14 @@
   <p>Le site et ses conditions d'utilisation sont soumis au droit français.</p>
 </main>
 
-<footer>
-  <p>Bò Jadin La · Grand-Bourg, Marie-Galante · Guadeloupe</p>
-  <p><a href="mentions-legales.html">Mentions légales</a> · <a href="confidentialite.html">Confidentialité</a> · <a href="conditions.html">Conditions de réservation</a></p>
-  <p>© 2026 Tous droits réservés</p>
-</footer>
+<footer id="site-footer"></footer>
 
+<script src="footer.js" defer></script>
+<script>
+  var nav = document.getElementById("nav");
+  function onScroll() { nav.classList.toggle("solid", window.scrollY > 40); }
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
+</script>
 </body>
 </html>
