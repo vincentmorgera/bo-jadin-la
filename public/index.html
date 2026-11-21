@@ -213,7 +213,7 @@
 <script>
   /* Carte OpenStreetMap chargée uniquement au clic (consentement).
      À REMPLACER par les coordonnées du repère (arrondies à ~100 m). */
-  var MAP_LAT = 15.8804073, MAP_LON = -61.3033894,207m;
+  var MAP_LAT = 15.8804073, MAP_LON = -61.3033894;
   document.getElementById("map-load").addEventListener("click", function () {
     var d = 0.004, m = document.getElementById("map");
     var bbox = [MAP_LON - d, MAP_LAT - d, MAP_LON + d, MAP_LAT + d].join("%2C");
