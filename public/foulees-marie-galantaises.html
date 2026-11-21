@@ -39,7 +39,7 @@
 
 <body id="top">
 
-<nav class="nav solid" aria-label="Navigation principale">
+<nav class="nav" id="nav" aria-label="Navigation principale">
   <a class="logo" href="index.html">Bò Jadin La</a>
   <div class="links">
     <a href="index.html#logement">Le logement</a>
@@ -115,5 +115,11 @@
   <p>© 2026 Tous droits réservés</p>
 </footer>
 
+<script>
+  var nav = document.getElementById("nav");
+  function onScroll() { nav.classList.toggle("solid", window.scrollY > 40); }
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
+</script>
 </body>
 </html>
