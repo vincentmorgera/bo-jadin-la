@@ -10,7 +10,7 @@ const CAPTIONS = ["", "", "", "", "", "", "", "", "", ""];
 const ALTS = [
   "Chambre climatisée avec lit double 160 cm, Bò Jadin La, Grand-Bourg",
   "Chambre ouvrant sur la terrasse et le jardin tropical",
-  "Coin petit-déjeuner sur la terrasse : machine à café, bouilloire, grille-pain",
+  "Coin cuisine sur la terrasse : machine à café, bouilloire, grille-pain et minibar",
   "Dressing avec étagères et porte coulissante ancienne",
   "Salle d'eau avec douche à l'italienne et carrelage feuillage",
   "Accès à la salle d'eau depuis la chambre",
@@ -143,7 +143,9 @@ const quoteText = (n, g, html = true) => {
   if (T.cleaning) lines.push(`Ménage : ${eur(T.cleaning)}`);
   lines.push("Frais de plateforme : 0 €");
   const total = `Total : ${eur(prices.reduce((x, p) => x + p, 0) + n*g*T.taxPerPersonNight + (T.cleaning || 0))}`;
-  return html ? lines.join("<br>") + `<br><b>${total}</b>` : lines.join("\n") + "\n" + total;
+  return html ? lines.join("<br>") + `<br><b>${total}</b>` : lines.join("
+  ") + "
+  " + total;
 };
 const nightsCount = () => Math.round((parse(b)-parse(a))/864e5);
 const updateQuote = () => { const q = document.getElementById("quote"); if (q) q.innerHTML = quoteText(nightsCount(), parseInt(document.getElementById("f-guests").value)); };
@@ -192,9 +194,12 @@ function render() {
     r.className = "result col"; r.hidden = false;
     r.innerHTML = `<div class="ok">✅ <b>${fmt(a)} → ${fmt(b)}</b> · ${n} nuit${n>1?"s":""} disponible${n>1?"s":""}</div>
       ${stayNotes().map(t => `<div class="stay-note">ℹ️ ${esc(t)}</div>`).join("")}
-            <div class="fields"><input id="f-name" placeholder="Votre nom et prénom" autocomplete="given-name" required>
-      <input id="f-email" type="email" placeholder="Votre e-mail" autocomplete="email" required>
-      <select id="f-guests"><option>1 voyageur</option><option>2 voyageurs</option></select></div>
+      <div class="fields">
+        <input id="f-name" placeholder="Votre nom et prénom" autocomplete="name" required>
+        <input id="f-email" type="email" placeholder="Votre e-mail" autocomplete="email" required>
+        <input id="f-tel" type="tel" placeholder="Votre numéro de portable (facultatif)" autocomplete="tel">
+        <select id="f-guests"><option>1 voyageur</option><option>2 voyageurs</option></select>
+      </div>
       <textarea id="f-msg" class="msg" rows="3" placeholder="Un message pour vos hôtes (facultatif)"></textarea>
       <input class="hp" id="f-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div class="quote" id="quote"></div>
@@ -227,9 +232,16 @@ document.getElementById("result").addEventListener("click", async e => {
   const f = id => document.getElementById(id);
   if (![f("f-name"), f("f-email")].every(i => i.reportValidity())) return;
   const btn = e.target, st = f("req-status"), guests = f("f-guests").value, n = nightsCount();
+  const tel = f("f-tel").value.trim();
   btn.disabled = true; st.textContent = "Envoi en cours…";
-  const message = `Demande de réservation du ${fmt(a,{day:"numeric",month:"long",year:"numeric"})} au ${fmt(b,{day:"numeric",month:"long",year:"numeric"})} (${n} nuit${n>1?"s":""}) pour ${guests}.\n\n${f("f-msg").value.trim()}\n\nEstimation :\n${quoteText(n, parseInt(guests), false)}`;
-  const ok = await sendForm({name: f("f-name").value.trim(), email: f("f-email").value.trim(), message, website: f("f-hp").value, subject: "Demande de réservation Bò Jadin La"}).catch(() => false);
+  const message = `Demande de réservation du ${fmt(a,{day:"numeric",month:"long",year:"numeric"})} au ${fmt(b,{day:"numeric",month:"long",year:"numeric"})} (${n} nuit${n>1?"s":""}) pour ${guests}.
+${tel ? `Téléphone : ${tel}
+` : ""}
+${f("f-msg").value.trim()}
+
+Estimation :
+${quoteText(n, parseInt(guests), false)}`;
+  const ok = await sendForm({name: f("f-name").value.trim(), email: f("f-email").value.trim(), ...(tel ? {telephone: tel} : {}), message, website: f("f-hp").value, subject: "Demande de réservation Bò Jadin La"}).catch(() => false);
   if (ok) { st.textContent = "Demande envoyée ! Vos hôtes vous répondent rapidement par e-mail."; btn.hidden = true; }
   else { st.textContent = "L'envoi a échoué. Merci de réessayer."; btn.disabled = false; }
 });
