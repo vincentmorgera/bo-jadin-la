@@ -1,3 +1,6 @@
+
+Icône JS
+app
 /* ====== À PERSONNALISER ====== */
 const FORM = { endpoint: "https://api.web3forms.com/submit", key: "56a3f346-5639-4143-92d8-807b3aa492c2" };
 
@@ -143,9 +146,7 @@ const quoteText = (n, g, html = true) => {
   if (T.cleaning) lines.push(`Ménage : ${eur(T.cleaning)}`);
   lines.push("Frais de plateforme : 0 €");
   const total = `Total : ${eur(prices.reduce((x, p) => x + p, 0) + n*g*T.taxPerPersonNight + (T.cleaning || 0))}`;
-  return html ? lines.join("<br>") + `<br><b>${total}</b>` : lines.join("
-  ") + "
-  " + total;
+  return html ? lines.join("<br>") + `<br><b>${total}</b>` : lines.join("\n") + "\n" + total;
 };
 const nightsCount = () => Math.round((parse(b)-parse(a))/864e5);
 const updateQuote = () => { const q = document.getElementById("quote"); if (q) q.innerHTML = quoteText(nightsCount(), parseInt(document.getElementById("f-guests").value)); };
@@ -234,13 +235,7 @@ document.getElementById("result").addEventListener("click", async e => {
   const btn = e.target, st = f("req-status"), guests = f("f-guests").value, n = nightsCount();
   const tel = f("f-tel").value.trim();
   btn.disabled = true; st.textContent = "Envoi en cours…";
-  const message = `Demande de réservation du ${fmt(a,{day:"numeric",month:"long",year:"numeric"})} au ${fmt(b,{day:"numeric",month:"long",year:"numeric"})} (${n} nuit${n>1?"s":""}) pour ${guests}.
-${tel ? `Téléphone : ${tel}
-` : ""}
-${f("f-msg").value.trim()}
-
-Estimation :
-${quoteText(n, parseInt(guests), false)}`;
+  const message = `Demande de réservation du ${fmt(a,{day:"numeric",month:"long",year:"numeric"})} au ${fmt(b,{day:"numeric",month:"long",year:"numeric"})} (${n} nuit${n>1?"s":""}) pour ${guests}.\n${tel ? `Téléphone : ${tel}\n` : ""}\n${f("f-msg").value.trim()}\n\nEstimation :\n${quoteText(n, parseInt(guests), false)}`;
   const ok = await sendForm({name: f("f-name").value.trim(), email: f("f-email").value.trim(), ...(tel ? {telephone: tel} : {}), message, website: f("f-hp").value, subject: "Demande de réservation Bò Jadin La"}).catch(() => false);
   if (ok) { st.textContent = "Demande envoyée ! Vos hôtes vous répondent rapidement par e-mail."; btn.hidden = true; }
   else { st.textContent = "L'envoi a échoué. Merci de réessayer."; btn.disabled = false; }
