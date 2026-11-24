@@ -1,6 +1,3 @@
-
-Icône JS
-app
 /* ====== À PERSONNALISER ====== */
 const FORM = { endpoint: "https://api.web3forms.com/submit", key: "56a3f346-5639-4143-92d8-807b3aa492c2" };
 
