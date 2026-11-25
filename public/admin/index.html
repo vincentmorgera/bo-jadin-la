@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Admin — Bò Jadin La</title>
+  <style>
+    :root {
+      --bg: #f6f7f5;
+      --card: #ffffff;
+      --text: #1c2421;
+      --muted: #5c6b65;
+      --accent: #1f6f5c;
+      --accent-hover: #175647;
+      --danger: #b42318;
+      --border: #dce2df;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    .wrap {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    h1 { font-size: 1.3rem; margin: 0; }
+    .sub { color: var(--muted); font-size: 0.9rem; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    button {
+      font: inherit;
+      cursor: pointer;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      padding: 9px 14px;
+      font-weight: 500;
+    }
+    button:hover { background: #eef2f0; }
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    button.primary:hover { background: var(--accent-hover); }
+    button.danger {
+      color: var(--danger);
+      border-color: #f3c6c2;
+      background: #fff8f7;
+    }
+    button.active {
+      background: var(--text);
+      border-color: var(--text);
+      color: #fff;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-size: 0.88rem;
+      font-weight: 500;
+    }
+    input, textarea, select {
+      font: inherit;
+      padding: 9px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+      width: 100%;
+    }
+    textarea { min-height: 84px; resize: vertical; }
+    .row-item {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 10px;
+      background: #fafbfa;
+    }
+    .row-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .status {
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      margin-bottom: 14px;
+      display: none;
+    }
+    .status.ok { display: block; background: #e8f5ef; color: #124e3e; border: 1px solid #b5decb; }
+    .status.err { display: block; background: #fdeceb; color: #8a1912; border: 1px solid #f5c2be; }
+    pre {
+      background: #141a18;
+      color: #e6efe9;
+      padding: 12px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.8rem;
+      max-height: 280px;
+    }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Administration — Bò Jadin La</h1>
+        <div class="sub">Ouvertures manuelles, avis et tarifs (GitHub → Vercel)</div>
+      </div>
+      <div id="topActions" class="actions hidden" style="margin-top:0;">
+        <button type="button" id="btnReloadAll">Recharger GitHub</button>
+        <button type="button" id="btnLock">Verrouiller</button>
+      </div>
+    </header>
+
+    <div id="statusBox" class="status"></div>
+
+    <!-- Écran connexion -->
+    <section id="loginView" class="card">
+      <h2>Connexion</h2>
+      <p class="sub">Saisissez le mot de passe d'accès à l'outil. Le token GitHub est enregistré uniquement dans ce navigateur.</p>
+      <form id="loginForm" class="grid" style="margin-top:12px;">
+        <label>
+          Mot de passe admin
+          <input type="password" id="loginPassword" required autocomplete="current-password" />
+        </label>
+        <label>
+          Token GitHub (Fine-grained PAT)
+          <input type="password" id="loginToken" placeholder="github_pat_..." autocomplete="off" />
+        </label>
+      </form>
+      <div class="actions">
+        <button type="submit" form="loginForm" class="primary">Déverrouiller</button>
+      </div>
+    </section>
+
+    <!-- Interface principale -->
+    <main id="appView" class="hidden">
+      <div class="card">
+        <div class="grid">
+          <label>
+            Dépôt (owner/repo)
+            <input type="text" id="cfgRepo" value="vince/bo-jadin-la" />
+          </label>
+          <label>
+            Branche
+            <input type="text" id="cfgBranch" value="main" />
+          </label>
+          <label>
+            Dossier JSON
+            <input type="text" id="cfgBasePath" value="public/data" />
+          </label>
+        </div>
+        <div class="actions">
+          <button type="button" id="btnSaveCfg">Enregistrer réglages poste</button>
+        </div>
+      </div>
+
+      <nav class="tabs" aria-label="Fichiers JSON">
+        <button type="button" class="tab-btn active" data-tab="manual">manual.json</button>
+        <button type="button" class="tab-btn" data-tab="reviews">reviews.json</button>
+        <button type="button" class="tab-btn" data-tab="tarifs">tarifs.json</button>
+      </nav>
+
+      <!-- Onglet manual.json -->
+      <section id="tab-manual" class="card tab-panel">
+        <h2>Ouvertures manuelles (manual.json)</h2>
+        <p class="sub">Plages rouvertes sur le site malgré les blocages Airbnb.</p>
+        <div id="manualList"></div>
+        <div class="actions">
+          <button type="button" id="addManualRow">+ Ajouter une plage</button>
+          <button type="button" class="primary" id="saveManual">Committer manual.json</button>
+        </div>
+      </section>
+
+      <!-- Onglet reviews.json -->
+      <section id="tab-reviews" class="card tab-panel hidden">
+        <h2>Avis clients (reviews.json)</h2>
+        <div class="grid">
+          <label>
+            Date mise à jour (YYYY-MM-DD)
+            <input type="date" id="revUpdated" />
+          </label>
+          <label>
+            Note globale
+            <input type="number" step="0.01" min="1" max="5" id="revRating" />
+          </label>
+          <label>
+            Nombre d'avis (count)
+            <input type="number" step="1" min="0" id="revCount" />
+          </label>
+          <label>
+            Tags (séparés par virgule)
+            <input type="text" id="revTags" />
+          </label>
+        </div>
+        <div class="grid" style="margin-top:12px;">
+          <label>
+            Google note
+            <input type="number" step="0.1" min="1" max="5" id="revGoogleRating" />
+          </label>
+          <label>
+            Google count
+            <input type="number" step="1" min="0" id="revGoogleCount" />
+          </label>
+          <label>
+            URL avis Google
+            <input type="url" id="revGoogleUrl" />
+          </label>
+        </div>
+
+        <h3 style="margin-top:20px;">Témoignages</h3>
+        <div id="testimonialsList"></div>
+        <div class="actions">
+          <button type="button" id="addTestimonial">+ Ajouter un avis</button>
+          <button type="button" class="primary" id="saveReviews">Committer reviews.json</button>
+        </div>
+      </section>
+
+      <!-- Onglet tarifs.json -->
+      <section id="tab-tarifs" class="card tab-panel hidden">
+        <h2>Tarifs (tarifs.json)</h2>
+        <div class="grid">
+          <label>
+            Tarif nuitée de base (€)
+            <input type="number" step="1" min="0" id="tarNightly" />
+          </label>
+          <label>
+            Taxe / pers. / nuit (€)
+            <input type="number" step="0.5" min="0" id="tarTax" />
+          </label>
+          <label>
+            Frais ménage (€)
+            <input type="number" step="1" min="0" id="tarCleaning" />
+          </label>
+          <label>
+            Minimum de nuits
+            <input type="number" step="1" min="1" id="tarMinNights" />
+          </label>
+        </div>
+
+        <h3 style="margin-top:20px;">Périodes tarifaires</h3>
+        <div id="periodsList"></div>
+        <div class="actions">
+          <button type="button" id="addPeriod">+ Ajouter une période</button>
+          <button type="button" class="primary" id="saveTarifs">Committer tarifs.json</button>
+        </div>
+      </section>
+
+      <!-- Aperçu & secours -->
+      <section class="card">
+        <h2>Aperçu JSON actif</h2>
+        <div class="actions" style="margin-top:0; margin-bottom:10px;">
+          <button type="button" id="btnCopyJson">Copier le JSON</button>
+          <button type="button" id="btnDownloadJson">Télécharger le fichier</button>
+        </div>
+        <pre id="jsonPreview">{}</pre>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Remplacer par le SHA-256 (hex minuscule) de votre mot de passe
+    const PASSWORD_SHA256 = "REMPLACER_PAR_HASH_SHA256";
+
+    const KEYS = {
+      unlocked: "bjl_admin_unlocked",
+      token: "bjl_gh_token",
+      cfg: "bjl_gh_cfg"
+    };
+
+    const state = {
+      activeTab: "manual",
+      files: {
+        manual: { data: { bookings: [], open: [] }, sha: null },
+        reviews: { data: { updated: "", rating: 5, count: 0, google: { rating: 5, count: 0, url: "" }, tags: [], testimonials: [] }, sha: null },
+        tarifs: { data: { nightly: 56, periods: [], taxPerPersonNight: 2, cleaning: 0, minNights: 1 }, sha: null }
+      }
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    function showStatus(msg, isError = false) {
+      const box = $("statusBox");
+      box.textContent = msg;
+      box.className = "status " + (isError ? "err" : "ok");
+    }
+
+    async function sha256Hex(str) {
+      const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+      return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    function getCfg() {
+      const saved = JSON.parse(localStorage.getItem(KEYS.cfg) || "{}");
+      return {
+        repo: saved.repo || "vince/bo-jadin-la",
+        branch: saved.branch || "main",
+        basePath: (saved.basePath || "public/data").replace(/^\/+|\/+$/g, "")
+      };
+    }
+
+    function getToken() {
+      return localStorage.getItem(KEYS.token) || "";
+    }
+
+    function filePath(name) {
+      const { basePath } = getCfg();
+      return `${basePath}/${name}.json`;
+    }
+
+    async function ghGetFile(name) {
+      const { repo, branch } = getCfg();
+      const token = getToken();
+      const path = filePath(name);
+      const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}?ref=${encodeURIComponent(branch)}`, {
+        headers: {
+          Accept: "application/vnd.github+json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        }
+      });
+      if (!res.ok) throw new Error(`Lecture ${path} impossible (${res.status})`);
+      const json = await res.json();
+      const decoded = decodeURIComponent(escape(atob(json.content.replace(/\n/g, ""))));
+      return { data: JSON.parse(decoded), sha: json.sha };
+    }
+
+    async function ghPutFile(name, dataObj, commitMessage) {
+      const { repo, branch } = getCfg();
+      const token = getToken();
+      if (!token) throw new Error("Token GitHub manquant sur cet appareil.");
+      const path = filePath(name);
+
+      // Toujours relire le sha courant juste avant écriture
+      const latest = await ghGetFile(name);
+      const formatted = JSON.stringify(dataObj, null, 2) + "\n";
+      const base64 = btoa(unescape(encodeURIComponent(formatted)));
+
+      const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+        method: "PUT",
+        headers: {
+          Accept: "application/vnd.github+json",
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: commitMessage,
+          content: base64,
+          sha: latest.sha,
+          branch
+        })
+      });
+
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(`Écriture ${path} refusée (${res.status}) : ${errBody.message || ""}`);
+      }
+      const updated = await ghGetFile(name);
+      state.files[name] = updated;
+      return updated;
+    }
+
+    function validateDateRange(from, to, label) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(from) || !/^\d{4}-\d{2}-\d{2}$/.test(to)) {
+        throw new Error(`${label} : dates attendues au format AAAA-MM-JJ.`);
+      }
+      if (to < from) {
+        throw new Error(`${label} : la date de fin (${to}) est antérieure au début (${from}).`);
+      }
+    }
+
+    function renderManual() {
+      const list = $("manualList");
+      list.innerHTML = "";
+      const items = state.files.manual.data.open || [];
+      items.forEach((item, idx) => {
+        const div = document.createElement("div");
+        div.className = "row-item";
+        div.innerHTML = `
+          <div class="row-head">
+            <span>Ouverture #${idx + 1}</span>
+            <button type="button" class="danger" data-del-manual="${idx}">Supprimer</button>
+          </div>
+          <div class="grid">
+            <label>Début <input type="date" value="${item.from || ""}" data-m-from="${idx}" /></label>
+            <label>Fin <input type="date" value="${item.to || ""}" data-m-to="${idx}" /></label>
+            <label>Note <input type="text" value="${(item.note || "").replace(/"/g, "&quot;")}" data-m-note="${idx}" /></label>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+      updatePreview();
+    }
+
+    function collectManual() {
+      const open = [];
+      document.querySelectorAll("[data-m-from]").forEach((el) => {
+        const idx = Number(el.dataset.mFrom);
+        const from = el.value.trim();
+        const to = document.querySelector(`[data-m-to="${idx}"]`).value.trim();
+        const note = document.querySelector(`[data-m-note="${idx}"]`).value.trim();
+        validateDateRange(from, to, `Ouverture #${idx + 1}`);
+        open.push({ from, to, note });
+      });
+      return {
+        bookings: Array.isArray(state.files.manual.data.bookings) ? state.files.manual.data.bookings : [],
+        open
+      };
+    }
+
+    function renderReviews() {
+      const r = state.files.reviews.data;
+      $("revUpdated").value = r.updated || "";
+      $("revRating").value = r.rating ?? 5;
+      $("revCount").value = r.count ?? 0;
+      $("revTags").value = Array.isArray(r.tags) ? r.tags.join(", ") : "";
+      $("revGoogleRating").value = r.google?.rating ?? 5;
+      $("revGoogleCount").value = r.google?.count ?? 0;
+      $("revGoogleUrl").value = r.google?.url || "";
+
+      const list = $("testimonialsList");
+      list.innerHTML = "";
+      (r.testimonials || []).forEach((t, idx) => {
+        const div = document.createElement("div");
+        div.className = "row-item";
+        div.innerHTML = `
+          <div class="row-head">
+            <span>Avis #${idx + 1} — ${t.author || "Anonyme"} (${t.date || ""})</span>
+            <button type="button" class="danger" data-del-rev="${idx}">Supprimer</button>
+          </div>
+          <div class="grid">
+            <label>Auteur <input type="text" value="${(t.author || "").replace(/"/g, "&quot;")}" data-t-author="${idx}" /></label>
+            <label>Date (YYYY-MM) <input type="text" value="${t.date || ""}" data-t-date="${idx}" /></label>
+            <label>Étoiles <input type="number" min="1" max="5" step="1" value="${t.stars ?? 5}" data-t-stars="${idx}" /></label>
+            <label>Source (optionnel) <input type="text" placeholder="google ou vide" value="${t.source || ""}" data-t-source="${idx}" /></label>
+          </div>
+          <label style="margin-top:10px;">Commentaire <textarea data-t-text="${idx}">${t.text || ""}</textarea></label>
+        `;
+        list.appendChild(div);
+      });
+      updatePreview();
+    }
+
+    function collectReviews() {
+      const testimonials = [];
+      document.querySelectorAll("[data-t-author]").forEach((el) => {
+        const idx = Number(el.dataset.tAuthor);
+        const author = el.value.trim();
+        const date = document.querySelector(`[data-t-date="${idx}"]`).value.trim();
+        const stars = Number(document.querySelector(`[data-t-stars="${idx}"]`).value);
+        const source = document.querySelector(`[data-t-source="${idx}"]`).value.trim();
+        const text = document.querySelector(`[data-t-text="${idx}"]`).value.trim();
+        if (!author || !text) throw new Error(`Avis #${idx + 1} : auteur et commentaire requis.`);
+        const obj = { text, author, date, stars };
+        if (source) obj.source = source;
+        testimonials.push(obj);
+      });
+
+      const current = state.files.reviews.data;
+      return {
+        ...current,
+        updated: $("revUpdated").value.trim() || new Date().toISOString().slice(0, 10),
+        rating: Number($("revRating").value),
+        count: Number($("revCount").value),
+        google: {
+          rating: Number($("revGoogleRating").value),
+          count: Number($("revGoogleCount").value),
+          url: $("revGoogleUrl").value.trim()
+        },
+        tags: $("revTags").value.split(",").map((s) => s.trim()).filter(Boolean),
+        testimonials
+      };
+    }
+
+    function renderTarifs() {
+      const t = state.files.tarifs.data;
+      $("tarNightly").value = t.nightly ?? 56;
+      $("tarTax").value = t.taxPerPersonNight ?? 2;
+      $("tarCleaning").value = t.cleaning ?? 0;
+      $("tarMinNights").value = t.minNights ?? 1;
+
+      const list = $("periodsList");
+      list.innerHTML = "";
+      (t.periods || []).forEach((p, idx) => {
+        const div = document.createElement("div");
+        div.className = "row-item";
+        div.innerHTML = `
+          <div class="row-head">
+            <span>Période #${idx + 1}</span>
+            <button type="button" class="danger" data-del-period="${idx}">Supprimer</button>
+          </div>
+          <div class="grid">
+            <label>Du <input type="date" value="${p.from || ""}" data-p-from="${idx}" /></label>
+            <label>Au <input type="date" value="${p.to || ""}" data-p-to="${idx}" /></label>
+            <label>Nuitée (€) <input type="number" min="1" step="1" value="${p.nightly ?? 56}" data-p-nightly="${idx}" /></label>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+      updatePreview();
+    }
+
+    function collectTarifs() {
+      const periods = [];
+      document.querySelectorAll("[data-p-from]").forEach((el) => {
+        const idx = Number(el.dataset.pFrom);
+        const from = el.value.trim();
+        const to = document.querySelector(`[data-p-to="${idx}"]`).value.trim();
+        const nightly = Number(document.querySelector(`[data-p-nightly="${idx}"]`).value);
+        validateDateRange(from, to, `Période #${idx + 1}`);
+        if (!Number.isFinite(nightly) || nightly <= 0) {
+          throw new Error(`Période #${idx + 1} : tarif nuitée invalide.`);
+        }
+        periods.push({ from, to, nightly });
+      });
+
+      return {
+        nightly: Number($("tarNightly").value),
+        periods,
+        taxPerPersonNight: Number($("tarTax").value),
+        cleaning: Number($("tarCleaning").value),
+        minNights: Number($("tarMinNights").value)
+      };
+    }
+
+    function updatePreview() {
+      const currentData = state.files[state.activeTab]?.data ?? {};
+      $("jsonPreview").textContent = JSON.stringify(currentData, null, 2);
+    }
+
+    async function loadAllFiles() {
+      try {
+        showStatus("Chargement des fichiers JSON depuis GitHub...");
+        for (const name of ["manual", "reviews", "tarifs"]) {
+          state.files[name] = await ghGetFile(name);
+        }
+        renderManual();
+        renderReviews();
+        renderTarifs();
+        showStatus("Fichiers chargés depuis GitHub.");
+      } catch (err) {
+        showStatus(err.message, true);
+      }
+    }
+
+    function setAuthenticated(isAuth) {
+      $("loginView").classList.toggle("hidden", isAuth);
+      $("appView").classList.toggle("hidden", !isAuth);
+      $("topActions").classList.toggle("hidden", !isAuth);
+    }
+
+    $("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const pwd = $("loginPassword").value;
+      const tokenInput = $("loginToken").value.trim();
+      const hash = await sha256Hex(pwd);
+
+      if (PASSWORD_SHA256 === "930dedfd59f93b5b8f3de83f0c824c5978e9991dd2e212e60efcb351b62efcce" || hash !== PASSWORD_SHA256) {
+        showStatus("Mot de passe incorrect ou hash non configuré.", true);
+        return;
+      }
+      if (tokenInput) localStorage.setItem(KEYS.token, tokenInput);
+      localStorage.setItem(KEYS.unlocked, "1");
+      $("loginPassword").value = "";
+      setAuthenticated(true);
+      await loadAllFiles();
+    });
+
+    $("btnLock").addEventListener("click", () => {
+      localStorage.removeItem(KEYS.unlocked);
+      setAuthenticated(false);
+    });
+
+    $("btnSaveCfg").addEventListener("click", () => {
+      localStorage.setItem(KEYS.cfg, JSON.stringify({
+        repo: $("cfgRepo").value.trim(),
+        branch: $("cfgBranch").value.trim(),
+        basePath: $("cfgBasePath").value.trim()
+      }));
+      showStatus("Réglages enregistrés sur cet appareil.");
+    });
+
+    document.querySelectorAll(".tab-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.activeTab = btn.dataset.tab;
+        document.querySelectorAll(".tab-btn").forEach((b) => b.classList.toggle("active", b === btn));
+        document.querySelectorAll(".tab-panel").forEach((p) => p.classList.toggle("hidden", p.id !== `tab-${state.activeTab}`));
+        updatePreview();
+      });
+    });
+
+    $("addManualRow").addEventListener("click", () => {
+      state.files.manual.data.open.push({ from: "", to: "", note: "" });
+      renderManual();
+    });
+
+    $("manualList").addEventListener("click", (e) => {
+      const idx = e.target.dataset.delManual;
+      if (idx !== undefined) {
+        state.files.manual.data.open.splice(Number(idx), 1);
+        renderManual();
+      }
+    });
+
+    $("saveManual").addEventListener("click", async () => {
+      try {
+        const data = collectManual();
+        await ghPutFile("manual", data, "chore(admin): update manual.json");
+        renderManual();
+        showStatus("manual.json committé sur GitHub (déploiement Vercel en cours).");
+      } catch (err) {
+        showStatus(err.message, true);
+      }
+    });
+
+    $("addTestimonial").addEventListener("click", () => {
+      state.files.reviews.data.testimonials.unshift({ text: "", author: "", date: new Date().toISOString().slice(0, 7), stars: 5 });
+      renderReviews();
+    });
+
+    $("testimonialsList").addEventListener("click", (e) => {
+      const idx = e.target.dataset.delRev;
+      if (idx !== undefined) {
+        state.files.reviews.data.testimonials.splice(Number(idx), 1);
+        renderReviews();
+      }
+    });
+
+    $("saveReviews").addEventListener("click", async () => {
+      try {
+        const data = collectReviews();
+        await ghPutFile("reviews", data, "chore(admin): update reviews.json");
+        renderReviews();
+        showStatus("reviews.json committé sur GitHub (déploiement Vercel en cours).");
+      } catch (err) {
+        showStatus(err.message, true);
+      }
+    });
+
+    $("addPeriod").addEventListener("click", () => {
+      state.files.tarifs.data.periods.push({ from: "", to: "", nightly: Number($("tarNightly").value) || 56 });
+      renderTarifs();
+    });
+
+    $("periodsList").addEventListener("click", (e) => {
+      const idx = e.target.dataset.delPeriod;
+      if (idx !== undefined) {
+        state.files.tarifs.data.periods.splice(Number(idx), 1);
+        renderTarifs();
+      }
+    });
+
+    $("saveTarifs").addEventListener("click", async () => {
+      try {
+        const data = collectTarifs();
+        await ghPutFile("tarifs", data, "chore(admin): update tarifs.json");
+        renderTarifs();
+        showStatus("tarifs.json committé sur GitHub (déploiement Vercel en cours).");
+      } catch (err) {
+        showStatus(err.message, true);
+      }
+    });
+
+    $("btnReloadAll").addEventListener("click", loadAllFiles);
+
+    $("btnCopyJson").addEventListener("click", async () => {
+      await navigator.clipboard.writeText($("jsonPreview").textContent);
+      showStatus("JSON copié dans le presse-papiers.");
+    });
+
+    $("btnDownloadJson").addEventListener("click", () => {
+      const blob = new Blob([$("jsonPreview").textContent], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${state.activeTab}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    // Init
+    const cfg = getCfg();
+    $("cfgRepo").value = cfg.repo;
+    $("cfgBranch").value = cfg.branch;
+    $("cfgBasePath").value = cfg.basePath;
+    if ($("loginToken")) $("loginToken").value = getToken();
+
+    if (localStorage.getItem(KEYS.unlocked) === "1" && PASSWORD_SHA256 !== "REMPLACER_PAR_HASH_SHA256") {
+      setAuthenticated(true);
+      loadAllFiles();
+    }
+  </script>
+</body>
+</html>
