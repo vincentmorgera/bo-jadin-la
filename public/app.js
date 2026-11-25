@@ -65,6 +65,23 @@ lb.addEventListener("touchend", e => {
 /* Avis (données dans data/reviews.json) */
 const esc = t => String(t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const fr = v => String(v).replace(".", ",");
+
+const HCAPTCHA_KEY = "50b2fe65-b00b-4b9e-ad62-3ba471098be2"; // clé publique Web3Forms
+const captchaIds = {};
+const mountCaptcha = id => {
+  const el = document.getElementById(id);
+  if (window.hcaptcha && el && captchaIds[id] === undefined) {
+    captchaIds[id] = hcaptcha.render(id, { sitekey: HCAPTCHA_KEY });
+  }
+};
+const getCaptchaToken = id => (window.hcaptcha && captchaIds[id] !== undefined) ? hcaptcha.getResponse(captchaIds[id]) : "";
+const resetCaptcha = id => { if (window.hcaptcha && captchaIds[id] !== undefined) hcaptcha.reset(captchaIds[id]); };
+
+window.onHcaptchaLoad = () => {
+  mountCaptcha("captcha-contact");
+  mountCaptcha("captcha-req");
+};
+
 const sendForm = async ({website, ...data}) => {
   if (website) return true;                         // champ piège rempli : robot, on ignore
   const res = await fetch(FORM.endpoint, {
@@ -107,16 +124,9 @@ fetch("data/reviews.json", {cache:"no-cache"}).then(r => r.json()).then(r => {
         <span style="position:absolute; top:0; left:0; overflow:hidden; width:${fill}%; color: #f4b41a; white-space:nowrap;">★</span>
       </span>`;
     }
-    return `<span class="rate"><span style="font-size:0.75em;font-weight:600;margin-right:6px;">${fr(v)}</span><span style="font-size:0.7em;display:inline-flex;gap:1px;vertical-align:middle;">${starsHtml}</span><small>${label}</small></span>`;
-  };
-  const g = r.google || {};
-  document.getElementById("rating-h").innerHTML =
-      (r.rating ? rate(r.rating, `${r.count + g.count} avis  ${logo("airbnb")} ${logo("google")}`) : "");
+    return `<span class="rate"><span style="font-size:0.75em;font-weight:600;margin-right:6px;">${fr(v)}</span><span style="font-size:0.7em;display:inline-flex;gap:1px;vertical-align:middle;">${starsHtml}</span><small>${label}</small></span>`; }; const g = r.google \vert{}\vert{} {}; document.getElementById("rating-h").innerHTML = (r.rating ? rate(r.rating, `${r.count + g.count} avis  ${logo("airbnb")} ${logo("google")}`) : "");
   if (g.url) { const gl = document.getElementById("g-review"); gl.href = g.url; gl.hidden = false; }
-  document.getElementById("tags").innerHTML = (r.tags || []).map(t => `<span>${esc(t)}</span>`).join("");
-  const list = (r.testimonials || []).slice().sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
-  const monthFr = d => /^\d{4}-\d{2}/.test(d) ? new Date(+d.slice(0,4), +d.slice(5,7) - 1, 1).toLocaleDateString("fr-FR", {month:"long", year:"numeric"}) : d;
-  const card = t => `<blockquote>${t.stars ? `<div class="gs stars">${"★".repeat(Math.min(5, +t.stars || 0))}</div>` : ""}<div class="rev-text">“${esc(t.text)}”</div><cite>${esc(t.author)}${t.date ? " · " + esc(monthFr(t.date)) : ""} · ${logo(t.source)}</cite></blockquote>`;
+  document.getElementById("tags").innerHTML = (r.tags || []).map(t => `<span>${esc(t)}</span>`).join(""); const list = (r.testimonials \vert{}\vert{} []).slice().sort((a, b) => String(b.date \vert{}\vert{} "").localeCompare(String(a.date \vert{}\vert{} ""))); const monthFr = d => /^\d{4}-\d{2}/.test(d) ? new Date(+d.slice(0,4), +d.slice(5,7) - 1, 1).toLocaleDateString("fr-FR", {month:"long", year:"numeric"}) : d; const card = t => `<blockquote>${t.stars ? `<div class="gs stars">${"★".repeat(Math.min(5, +t.stars || 0))}</div>` : ""}<div class="rev-text">“${esc(t.text)}”</div><cite>${esc(t.author)}${t.date ? " · " + esc(monthFr(t.date)) : ""} · ${logo(t.source)}</cite></blockquote>`;
   const quotes = document.getElementById("quotes"), moreBtn = document.getElementById("more-rev");
   let shown = 0;
   const showMore = () => {
@@ -127,7 +137,7 @@ fetch("data/reviews.json", {cache:"no-cache"}).then(r => r.json()).then(r => {
   moreBtn.onclick = showMore;
   showMore();
   document.getElementById("scores").innerHTML = (r.scores || []).map(([n,v]) =>
-      `<div class="score"><span>${esc(n)}</span><div class="bar"><i style="width:${v/5*100}%"></i></div><b>${fr(v)}</b></div>`).join("");
+      `<div class="score"><span>${esc(n)}</span><div class="bar"><i style="width:${v/5*100}\%"></i></div><b>${fr(v)}</b></div>`).join("");
   if (r.updated) document.getElementById("rev-updated").textContent = "Notes et avis Airbnb/Google des voyageurs ayant séjourné dans le logement. Mis à jour le " + new Date(r.updated).toLocaleDateString("fr-FR",{dateStyle:"long"}) ;
 }).catch(() => {});
 
@@ -142,143 +152,5 @@ const quoteText = (n, g, html = true) => {
   for (let d = parse(a); key(d) < b; d = addDays(d,1)) prices.push(priceOf(key(d)));
   const byPrice = new Map();
   prices.forEach(p => byPrice.set(p, (byPrice.get(p) || 0) + 1));
-  const lines = [...byPrice].map(([p, k]) => `Logement : ${eur(p)} × ${k} nuit${s(k)} = ${eur(p*k)}`);
-  lines.push(`Taxe de séjour : ${eur(T.taxPerPersonNight)} × ${g} personne${s(g)} × ${n} nuit${s(n)} = ${eur(n*g*T.taxPerPersonNight)}`);
-  if (T.cleaning) lines.push(`Ménage : ${eur(T.cleaning)}`);
-  lines.push("Frais de plateforme : 0 €");
-  const total = `Total : ${eur(prices.reduce((x, p) => x + p, 0) + n*g*T.taxPerPersonNight + (T.cleaning || 0))}`;
-  return html ? lines.join("<br>") + `<br><b>${total}</b>` : lines.join("\n") + "\n" + total;
-};
-const nightsCount = () => Math.round((parse(b)-parse(a))/864e5);
-const updateQuote = () => { const q = document.getElementById("quote"); if (q) q.innerHTML = quoteText(nightsCount(), parseInt(document.getElementById("f-guests").value)); };
-const pad = n => String(n).padStart(2,"0");
-const key = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-const parse = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y,m-1,d); };
-const addDays = (d,n) => new Date(d.getFullYear(), d.getMonth(), d.getDate()+n);
-const fmt = (s,o={day:"numeric",month:"short"}) => parse(s).toLocaleDateString("fr-FR",o);
-const todayKey = key(new Date());
-
-const busy = new Set();            // nuits occupées (clé = jour de la nuit)
-const notes = new Map();           // commentaires par nuit (manual.json)
-let view = new Date(); view.setDate(1);
-let a = null, b = null;
-
-const nightsFree = (from, to) => { for (let d = parse(from); key(d) < to; d = addDays(d,1)) if (busy.has(key(d))) return false; return true; };
-const stayNotes = () => { const s = new Set(); for (let d = parse(a); key(d) < b; d = addDays(d,1)) if (notes.has(key(d))) s.add(notes.get(key(d))); return [...s]; };
-
-function renderMonth(first) {
-  const days = new Date(first.getFullYear(), first.getMonth()+1, 0).getDate();
-  const off = (first.getDay()+6)%7;
-  let h = `<div class="month"><h3>${first.toLocaleDateString("fr-FR",{month:"long",year:"numeric"})}</h3><div class="grid">`;
-  h += ["L","M","M","J","V","S","D"].map(x => `<div class="wd">${x}</div>`).join("");
-  h += '<div class="empty"></div>'.repeat(off);
-  for (let i = 1; i <= days; i++) {
-    const d = new Date(first.getFullYear(), first.getMonth(), i), k = key(d);
-    const c = ["d"];
-    if (k < todayKey) c.push("past");
-    else if (busy.has(k)) { c.push("booked"); if (a && !b && k > a) c.push("end-ok"); }
-    if (k === todayKey) c.push("today");
-    if (k === a || k === b) c.push("sel");
-    else if (a && b && k > a && k < b) c.push("range");
-    const note = k >= todayKey && notes.get(k); if (note) c.push("has-note");
-    h += `<button class="${c.join(" ")}" data-k="${k}"${note ? ` title="${esc(note)}"` : ""}>${i}${c.includes("past")||c.includes("booked")?"":`<small>${priceOf(k)} €</small>`}</button>`;
-  }
-  return h + "</div></div>";
-}
-
-function render() {
-  const m2 = new Date(view.getFullYear(), view.getMonth()+1, 1);
-  document.getElementById("months").innerHTML = renderMonth(view) + renderMonth(m2);
-  const r = document.getElementById("result");
-  if (a && b) {
-    const n = Math.round((parse(b)-parse(a))/864e5);
-    if (n < T.minNights) { r.className = "result bad"; r.hidden = false; r.innerHTML = `<span>Séjour minimum : ${T.minNights} nuits.</span>`; return; }
-    r.className = "result col"; r.hidden = false;
-    r.innerHTML = `<div class="ok">✅ <b>${fmt(a)} → ${fmt(b)}</b> · ${n} nuit${n>1?"s":""} disponible${n>1?"s":""}</div>
-      ${stayNotes().map(t => `<div class="stay-note">ℹ️ ${esc(t)}</div>`).join("")}
-      <div class="fields">
-        <input id="f-name" placeholder="Votre nom et prénom" autocomplete="name" required>
-        <input id="f-email" type="email" placeholder="Votre e-mail" autocomplete="email" required>
-        <input id="f-tel" type="tel" placeholder="Votre numéro de portable (facultatif)" autocomplete="tel">
-        <select id="f-guests"><option>1 voyageur</option><option>2 voyageurs</option></select>
-      </div>
-      <textarea id="f-msg" class="msg" rows="3" placeholder="Un message pour vos hôtes (facultatif)"></textarea>
-      <input class="hp" id="f-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <div class="quote" id="quote"></div>
-      <div class="actions"><button class="btn" data-send="req">Envoyer ma demande</button></div>
-      <p class="form-status" id="req-status" role="status"></p>
-      <a class="airbnb-link" href="https://www.airbnb.fr/rooms/${ROOM}?check_in=${a}&check_out=${b}&adults=1" target="_blank" rel="noopener">ou réserver via Airbnb</a>`;
-    updateQuote();
-  } else if (a) {
-    r.className = "result"; r.hidden = false;
-    r.innerHTML = `<span>Arrivée le <b>${fmt(a)}</b>. Choisissez maintenant votre date de départ.${notes.has(a) ? `<br>ℹ️ ${esc(notes.get(a))}` : ""}</span>`;
-  } else r.hidden = true;
-}
-
-document.getElementById("months").addEventListener("click", e => {
-  const k = e.target.dataset.k; if (!k) return;
-  const isBusy = busy.has(k);
-  if (!a || (a && b)) { if (isBusy) return; a = k; b = null; }
-  else if (k <= a) { if (isBusy) return; a = k; }
-  else if (nightsFree(a, k)) b = k;
-  else { const r = document.getElementById("result"); r.hidden = false; r.className = "result bad";
-    r.innerHTML = "<span>Cette période contient des nuits occupées. Essayez d'autres dates.</span>"; a = isBusy ? null : k; b = null; return; }
-  render();
-});
-document.getElementById("prev").onclick = () => { view = new Date(view.getFullYear(), view.getMonth()-1, 1); render(); };
-document.getElementById("next").onclick = () => { view = new Date(view.getFullYear(), view.getMonth()+1, 1); render(); };
-
-document.getElementById("result").addEventListener("change", e => e.target.id === "f-guests" && updateQuote());
-document.getElementById("result").addEventListener("click", async e => {
-  if (e.target.dataset.send !== "req") return;
-  const f = id => document.getElementById(id);
-  if (![f("f-name"), f("f-email")].every(i => i.reportValidity())) return;
-  const btn = e.target, st = f("req-status"), guests = f("f-guests").value, n = nightsCount();
-  const tel = f("f-tel").value.trim();
-  btn.disabled = true; st.textContent = "Envoi en cours…";
-  const message = `Demande de réservation du ${fmt(a,{day:"numeric",month:"long",year:"numeric"})} au ${fmt(b,{day:"numeric",month:"long",year:"numeric"})} (${n} nuit${n>1?"s":""}) pour ${guests}.\n${tel ? `Téléphone : ${tel}\n` : ""}\n${f("f-msg").value.trim()}\n\nEstimation :\n${quoteText(n, parseInt(guests), false)}`;
-  const ok = await sendForm({name: f("f-name").value.trim(), email: f("f-email").value.trim(), ...(tel ? {telephone: tel} : {}), message, website: f("f-hp").value, subject: "Demande de réservation Bò Jadin La"}).catch(() => false);
-  if (ok) { st.textContent = "Demande envoyée ! Vos hôtes vous répondent rapidement par e-mail."; btn.hidden = true; }
-  else { st.textContent = "L'envoi a échoué. Merci de réessayer."; btn.disabled = false; }
-});
-
-const load = u => fetch(u, {cache:"no-cache"}).then(r => r.json()).catch(() => ({bookings:[]}));
-Promise.all([load("data/bookings.json"), load("data/manual.json"), load("data/tarifs.json")]).then(([data, man, tar]) => {
-  if (tar.nightly) T = {...T, ...tar};
-
-  const block = list => list.forEach(({start, end, note}) => {
-    for (let d = parse(start); key(d) < end; d = addDays(d,1)) { busy.add(key(d)); if (note) notes.set(key(d), note); }
-  });
-  block(data.bookings || []);                       // Airbnb
-  (man.open || []).forEach(({from, to, note}) => {  // rouvert sur le site uniquement
-    for (let d = parse(from); key(d) <= to; d = addDays(d,1)) { busy.delete(key(d)); if (note) notes.set(key(d), note); }
-  });
-  block(man.bookings || []);                        // blocages manuels (prioritaires)
-  if (data.updated) document.getElementById("updated").textContent = "Dernière modification du calendrier le " + new Date(data.updated).toLocaleString("fr-FR",{dateStyle:"medium",timeStyle:"short"});
-  render();
-}).catch(() => { render(); });
-
-/* Météo du moment à Grand-Bourg (Open-Meteo, sans clé) */
-const WMO = c => c === 0 ? ["☀️","Grand soleil"] : c <= 2 ? ["🌤️","Peu nuageux"] : c === 3 ? ["☁️","Couvert"] :
-    c <= 48 ? ["🌫️","Brumeux"] : c <= 57 ? ["🌦️","Bruine"] : c <= 67 ? ["🌧️","Pluie"] : c <= 82 ? ["🌦️","Averses"] : c >= 95 ? ["⛈️","Orage"] : ["🌴","Variable"];
-fetch("https://api.open-meteo.com/v1/forecast?latitude=15.88&longitude=-61.31&current=temperature_2m,weather_code,wind_speed_10m&timezone=America%2FGuadeloupe")
-    .then(r => r.json()).then(d => {
-  const c = d.current, [icon, label] = WMO(c.weather_code), el = document.getElementById("meteo");
-  el.textContent = `${icon} ${Math.round(c.temperature_2m)} °C à Grand-Bourg · ${label} · vent ${Math.round(c.wind_speed_10m)} km/h`;
-  el.hidden = false;
-}).catch(() => {});
-
-/* Carrousel de la section « Le logement » */
-const track = document.getElementById("track"), count = document.getElementById("count");
-track.innerHTML = PHOTOS.map((p, i) => `<img loading="lazy" src="${p}" data-full="${p}" alt="Bò Jadin La, photo ${i+1}">`).join("");
-const updCount = () => count.textContent = `${Math.round(track.scrollLeft / track.clientWidth) + 1} / ${PHOTOS.length}`;
-track.addEventListener("scroll", updCount, {passive:true}); updCount();
-const slide = dir => {
-  const end = track.scrollLeft + track.clientWidth >= track.scrollWidth - 5;
-  if (dir > 0 && end) track.scrollTo({left:0, behavior:"smooth"});
-  else if (dir < 0 && track.scrollLeft < 5) track.scrollTo({left:track.scrollWidth, behavior:"smooth"});
-  else track.scrollBy({left:dir * track.clientWidth, behavior:"smooth"});
-};
-document.getElementById("c-prev").onclick = () => slide(-1);
-document.getElementById("c-next").onclick = () => slide(1);
-track.addEventListener("click", e => { if (e.target.dataset.full) show(PHOTOS.indexOf(e.target.dataset.full)); });
+  const lines = [...byPrice].map(([p, k]) => `Logement : ${eur(p)} ×${k} nuit${s(k)} =${eur(p*k)}`);
+  lines.push(`Taxe de séjour :
