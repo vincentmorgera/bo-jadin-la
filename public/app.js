@@ -82,7 +82,7 @@ window.onHcaptchaLoad = () => {
   mountCaptcha("captcha-req");
 };
 
-const sendForm = async ({website, ...data}) => {
+const sendForm = async ({website, "g-recaptcha-response": _g, "h-captcha-response": _h, ...data}) => {
   if (website) return true;                         // champ piège rempli : robot, on ignore
   const res = await fetch(FORM.endpoint, {
     method: "POST",
@@ -97,9 +97,12 @@ cf.addEventListener("submit", async e => {
   e.preventDefault();
   const token = getCaptchaToken("captcha-contact");
   if (!token) { cs.textContent = "Merci de cocher la case « Je suis humain » avant d'envoyer."; return; }
-  const btn = cf.querySelector("button"), d = Object.fromEntries(new FormData(cf));
+  const btn = cf.querySelector("button");
+  const raw = Object.fromEntries(new FormData(cf));
+  delete raw["g-recaptcha-response"];
+  delete raw["h-captcha-response"];
   btn.disabled = true; cs.textContent = "Envoi en cours…";
-  const ok = await sendForm({...d, "h-captcha-response": token, subject: `Question de ${d.name} (site Bò Jadin La)`}).catch(() => false);
+  const ok = await sendForm({...raw, subject: `Question de ${raw.name} (site Bò Jadin La)`}).catch(() => false);
   cs.textContent = ok ? "Merci, votre message est bien envoyé. Nous vous répondons rapidement par e-mail." : "L'envoi a échoué. Merci de réessayer dans un instant.";
   btn.disabled = false;
   resetCaptcha("captcha-contact");
