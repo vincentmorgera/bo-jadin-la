@@ -697,7 +697,7 @@ const PASSWORD_SHA256 = "930dedfd59f93b5b8f3de83f0c824c5978e9991dd2e212e60efcb35
     $("saveTarifs").addEventListener("click", async () => {
       try {
         const data = collectTarifs();
-        await ghPutFile("tarifs", data, "chore(admin): update tarifs.json");
+        await ghPutFile("tarifs", data, "chore(admin): update tarifs.json ");
         renderTarifs();
         showStatus("tarifs.json committé sur GitHub (déploiement Vercel en cours).");
       } catch (err) {
