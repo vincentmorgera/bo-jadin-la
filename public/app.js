@@ -87,7 +87,7 @@ const sendForm = async ({website, "g-recaptcha-response": _g, "h-captcha-respons
   const res = await fetch(FORM.endpoint, {
     method: "POST",
     headers: {"Content-Type":"application/json", Accept:"application/json"},
-    body: JSON.stringify({access_key: FORM.key, from_name: "Site Bò Jadin La", replyto: data.email, ...data})
+    body: JSON.stringify({access_key: FORM.key, from_name: "Site Bò Jadin La", ...data})
   });
   const j = await res.json().catch(() => ({}));
   return res.ok && j.success !== false;
@@ -262,7 +262,14 @@ document.getElementById("result").addEventListener("click", async e => {
   const tel = f("f-tel").value.trim();
   btn.disabled = true; st.textContent = "Envoi en cours…";
   const message = `Demande de réservation du ${fmt(a,{day:"numeric",month:"long",year:"numeric"})} au ${fmt(b,{day:"numeric",month:"long",year:"numeric"})} (${n} nuit${n>1?"s":""}) pour ${guests}.\n${tel ? `Téléphone : ${tel}\n` : ""}\n${f("f-msg").value.trim()}\n\nEstimation :\n${quoteText(n, parseInt(guests), false)}`;
-  const ok = await sendForm({name: f("f-name").value.trim(), email: f("f-email").value.trim(), ...(tel ? {telephone: tel} : {}), message, website: f("f-hp").value, "h-captcha-response": token, subject: "Demande de réservation Bò Jadin La"}).catch(() => false);
+  const ok = await sendForm({
+    name: f("f-name").value.trim(),
+    email: f("f-email").value.trim(),
+    ...(tel ? {telephone: tel} : {}),
+    message,
+    website: f("f-hp").value,
+    subject: "Demande de réservation Bò Jadin La"
+  }).catch(() => false);
   if (ok) { st.textContent = "Demande envoyée ! Vos hôtes vous répondent rapidement par e-mail."; btn.hidden = true; }
   else { st.textContent = "L'envoi a échoué. Merci de réessayer."; btn.disabled = false; resetCaptcha("captcha-req"); }
 });
