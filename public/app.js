@@ -8,7 +8,7 @@ const PHOTOS = Array.from({length:10}, (_, i) => i + 1).map(n => `images/${n}.${
 // Description affichée sous la photo (optionnel, "" = rien). Une entrée par photo, dans l'ordre.
 const CAPTIONS = ["", "", "", "", "", "", "", "", "", ""];
 const ALTS = [
-  "Chambre climatisée avec lit double 160 cm, Bò Jadin La, Grand-Bourg",
+  "Chambre climatisée avec lit double 160  cm, Bò Jadin La, Grand-Bourg",
   "Chambre ouvrant sur la terrasse et le jardin tropical",
   "Coin cuisine sur la terrasse : machine à café, bouilloire, grille-pain et minibar",
   "Dressing avec étagères et porte coulissante ancienne",
