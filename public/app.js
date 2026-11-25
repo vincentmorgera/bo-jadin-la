@@ -1,5 +1,5 @@
 /* ====== À PERSONNALISER ====== */
-const FORM = { endpoint: "https://api.web3forms.com/submit", key: "56a3f346-5639-4143-92d8-807b3aa492c2" };
+const FORM = { endpoint: "https://api.web3forms.com/submit", key: "1283c633-cbfa-47cb-87a6-9157f1b1d6bf" };
 
 /* ============================== */
 const ROOM = "1686923054634848912";
