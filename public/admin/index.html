@@ -728,10 +728,11 @@ const PASSWORD_SHA256 = "930dedfd59f93b5b8f3de83f0c824c5978e9991dd2e212e60efcb35
     $("cfgBasePath").value = cfg.basePath;
     if ($("loginToken")) $("loginToken").value = getToken();
 
-    if (localStorage.getItem(KEYS.unlocked) === "1" && PASSWORD_SHA256 !== "REMPLACER_PAR_HASH_SHA256") {
+    if (localStorage.getItem(KEYS.unlocked) === "1") {
       setAuthenticated(true);
       loadAllFiles();
     }
+
   </script>
 </body>
 </html>
