@@ -82,12 +82,32 @@ window.onHcaptchaLoad = () => {
   mountCaptcha("captcha-req");
 };
 
+const WA_PREFIX = {
+  "0690":"590","0691":"590","0590":"590",   // Guadeloupe
+  "0696":"596","0697":"596","0596":"596",   // Martinique
+  "0694":"594","0594":"594",                // Guyane
+  "0692":"262","0693":"262","0262":"262","0639":"262" // Réunion / Mayotte
+};
+const waLink = raw => {
+  let s = String(raw || "").replace(/[\s.\-()]/g, "");
+  if (s.startsWith("00")) s = "+" + s.slice(2);
+  if (!/^\+?\d{9,15}$/.test(s)) return "";
+  if (/^[67]\d{8}$/.test(s)) s = "0" + s;                       // 612345678 -> 0612345678
+  let d;
+  if (/^0\d{9}$/.test(s)) d = (WA_PREFIX[s.slice(0,4)] || "33") + s.slice(1);
+  else if (s.startsWith("+")) d = s.slice(1).replace(/^(33|590|594|596|262)0(?=\d{9}$)/, "$1"); // +33 (0)6...
+  else if (/^(33|590|594|596|262)\d{9}$/.test(s)) d = s;
+  else return "";
+  return "https://wa.me/" + d;
+};
+
 const sendForm = async ({website, "g-recaptcha-response": _g, "h-captcha-response": _h, ...data}) => {
   if (website) return true;                         // champ piège rempli : robot, on ignore
+  const wa = waLink(data.tel || data.telephone);
   const res = await fetch(FORM.endpoint, {
     method: "POST",
     headers: {"Content-Type":"application/json", Accept:"application/json"},
-    body: JSON.stringify({access_key: FORM.key, from_name: "Site Bò Jadin La", ...data})
+    body: JSON.stringify({access_key: FORM.key, from_name: "Site Bò Jadin La", ...data, ...(wa ? {whatsapp: wa} : {})})
   });
   const j = await res.json().catch(() => ({}));
   return res.ok && j.success !== false;
