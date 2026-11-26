@@ -123,6 +123,10 @@
       gap: 10px;
       margin-top: 14px;
     }
+    .actions-top {
+      margin-top: 12px;
+      margin-bottom: 14px;
+    }
     .status {
       padding: 10px 12px;
       border-radius: 8px;
@@ -132,6 +136,26 @@
     }
     .status.ok { display: block; background: #e8f5ef; color: #124e3e; border: 1px solid #b5decb; }
     .status.err { display: block; background: #fdeceb; color: #8a1912; border: 1px solid #f5c2be; }
+    details.json-collapse > summary {
+      cursor: pointer;
+      font-weight: 600;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+    }
+    details.json-collapse > summary::-webkit-details-marker {
+      display: none;
+    }
+    details.json-collapse[open] > summary {
+      margin-bottom: 12px;
+    }
+    .collapse-hint {
+      font-size: 0.82rem;
+      font-weight: 400;
+      color: var(--muted);
+    }
     pre {
       background: #141a18;
       color: #e6efe9;
@@ -140,287 +164,352 @@
       overflow-x: auto;
       font-size: 0.8rem;
       max-height: 280px;
+      margin: 0;
     }
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div>
-        <h1>Administration — Bò Jadin La</h1>
-        <div class="sub">Ouvertures manuelles, avis et tarifs (GitHub → Vercel)</div>
-      </div>
-      <div id="topActions" class="actions hidden" style="margin-top:0;">
-        <button type="button" id="btnReloadAll">Recharger GitHub</button>
-        <button type="button" id="btnLock">Verrouiller</button>
-      </div>
-    </header>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Administration — Bò Jadin La</h1>
+      <div class="sub">Réservations, ouvertures manuelles, avis et tarifs (GitHub → Vercel)</div>
+    </div>
+    <div id="topActions" class="actions hidden" style="margin-top:0;">
+      <button type="button" id="btnReloadAll">Recharger GitHub</button>
+      <button type="button" id="btnLock">Verrouiller</button>
+    </div>
+  </header>
 
-    <div id="statusBox" class="status"></div>
+  <div id="statusBox" class="status"></div>
 
-    <!-- Écran connexion -->
-    <section id="loginView" class="card">
-      <h2>Connexion</h2>
-      <p class="sub">Saisissez le mot de passe d'accès à l'outil. Le token GitHub est enregistré uniquement dans ce navigateur.</p>
-      <form id="loginForm" class="grid" style="margin-top:12px;">
+  <!-- Écran connexion -->
+  <section id="loginView" class="card">
+    <h2>Connexion</h2>
+    <p class="sub">Saisissez le mot de passe d'accès à l'outil. Le token GitHub est enregistré uniquement dans ce navigateur.</p>
+    <form id="loginForm" class="grid" style="margin-top:12px;">
+      <label>
+        Mot de passe admin
+        <input type="password" id="loginPassword" required autocomplete="current-password" />
+      </label>
+      <label>
+        Token GitHub (Fine-grained PAT)
+        <input type="password" id="loginToken" placeholder="github_pat_..." autocomplete="off" />
+      </label>
+    </form>
+    <div class="actions">
+      <button type="submit" form="loginForm" class="primary">Déverrouiller</button>
+    </div>
+  </section>
+
+  <!-- Interface principale -->
+  <main id="appView" class="hidden">
+    <nav class="tabs" aria-label="Sections et fichiers JSON">
+      <button type="button" class="tab-btn active" data-tab="bookings">bookings.json</button>
+      <button type="button" class="tab-btn" data-tab="manual">manual.json</button>
+      <button type="button" class="tab-btn" data-tab="reviews">reviews.json</button>
+      <button type="button" class="tab-btn" data-tab="tarifs">tarifs.json</button>
+      <button type="button" class="tab-btn" data-tab="params">Paramétrage</button>
+    </nav>
+
+    <!-- Onglet bookings.json -->
+    <section id="tab-bookings" class="card tab-panel">
+      <h2>Réservations (bookings.json)</h2>
+      <p class="sub">Périodes réservées ou bloquées manuellement.</p>
+      <div class="actions actions-top">
+        <button type="button" id="addBookingRow">+ Ajouter une réservation</button>
+        <button type="button" class="primary" id="saveBookings">Committer bookings.json</button>
+      </div>
+      <div id="bookingsList"></div>
+    </section>
+
+    <!-- Onglet manual.json -->
+    <section id="tab-manual" class="card tab-panel hidden">
+      <h2>Ouvertures manuelles (manual.json)</h2>
+      <p class="sub">Plages rouvertes sur le site malgré les blocages Airbnb.</p>
+      <div class="actions actions-top">
+        <button type="button" id="addManualRow">+ Ajouter une plage</button>
+        <button type="button" class="primary" id="saveManual">Committer manual.json</button>
+      </div>
+      <div id="manualList"></div>
+    </section>
+
+    <!-- Onglet reviews.json -->
+    <section id="tab-reviews" class="card tab-panel hidden">
+      <h2>Avis clients (reviews.json)</h2>
+      <div class="grid">
         <label>
-          Mot de passe admin
-          <input type="password" id="loginPassword" required autocomplete="current-password" />
+          Date mise à jour (YYYY-MM-DD)
+          <input type="date" id="revUpdated" />
         </label>
         <label>
-          Token GitHub (Fine-grained PAT)
-          <input type="password" id="loginToken" placeholder="github_pat_..." autocomplete="off" />
+          Note globale
+          <input type="number" step="0.01" min="1" max="5" id="revRating" />
         </label>
-      </form>
+        <label>
+          Nombre d'avis (count)
+          <input type="number" step="1" min="0" id="revCount" />
+        </label>
+        <label>
+          Tags (séparés par virgule)
+          <input type="text" id="revTags" />
+        </label>
+      </div>
+      <div class="grid" style="margin-top:12px;">
+        <label>
+          Google note
+          <input type="number" step="0.1" min="1" max="5" id="revGoogleRating" />
+        </label>
+        <label>
+          Google count
+          <input type="number" step="1" min="0" id="revGoogleCount" />
+        </label>
+        <label>
+          URL avis Google
+          <input type="url" id="revGoogleUrl" />
+        </label>
+      </div>
+
+      <h3 style="margin-top:20px;">Témoignages</h3>
+      <div class="actions actions-top">
+        <button type="button" id="addTestimonial">+ Ajouter un avis</button>
+        <button type="button" class="primary" id="saveReviews">Committer reviews.json</button>
+      </div>
+      <div id="testimonialsList"></div>
+    </section>
+
+    <!-- Onglet tarifs.json -->
+    <section id="tab-tarifs" class="card tab-panel hidden">
+      <h2>Tarifs (tarifs.json)</h2>
+      <div class="grid">
+        <label>
+          Tarif nuitée de base (€)
+          <input type="number" step="1" min="0" id="tarNightly" />
+        </label>
+        <label>
+          Taxe / pers. / nuit (€)
+          <input type="number" step="0.5" min="0" id="tarTax" />
+        </label>
+        <label>
+          Frais ménage (€)
+          <input type="number" step="1" min="0" id="tarCleaning" />
+        </label>
+        <label>
+          Minimum de nuits
+          <input type="number" step="1" min="1" id="tarMinNights" />
+        </label>
+      </div>
+
+      <h3 style="margin-top:20px;">Périodes tarifaires</h3>
+      <div class="actions actions-top">
+        <button type="button" id="addPeriod">+ Ajouter une période</button>
+        <button type="button" class="primary" id="saveTarifs">Committer tarifs.json</button>
+      </div>
+      <div id="periodsList"></div>
+    </section>
+
+    <!-- Onglet Paramétrage -->
+    <section id="tab-params" class="card tab-panel hidden">
+      <h2>Paramétrage</h2>
+      <p class="sub">Configuration du dépôt GitHub cible enregistrée localement sur ce poste.</p>
+      <div class="grid" style="margin-top:12px;">
+        <label>
+          Dépôt (owner/repo)
+          <input type="text" id="cfgRepo" value="vincentmorgera/bo-jadin-la" />
+        </label>
+        <label>
+          Branche
+          <input type="text" id="cfgBranch" value="main" />
+        </label>
+        <label>
+          Dossier JSON
+          <input type="text" id="cfgBasePath" value="public/data" />
+        </label>
+      </div>
       <div class="actions">
-        <button type="submit" form="loginForm" class="primary">Déverrouiller</button>
+        <button type="button" class="primary" id="btnSaveCfg">Enregistrer réglages poste</button>
       </div>
     </section>
 
-    <!-- Interface principale -->
-    <main id="appView" class="hidden">
-      <div class="card">
-        <div class="grid">
-          <label>
-            Dépôt (owner/repo)
-            <input type="text" id="cfgRepo" value="vince/bo-jadin-la" />
-          </label>
-          <label>
-            Branche
-            <input type="text" id="cfgBranch" value="main" />
-          </label>
-          <label>
-            Dossier JSON
-            <input type="text" id="cfgBasePath" value="public/data" />
-          </label>
-        </div>
-        <div class="actions">
-          <button type="button" id="btnSaveCfg">Enregistrer réglages poste</button>
-        </div>
+    <!-- Aperçu JSON dépliable -->
+    <details id="jsonDetails" class="card json-collapse">
+      <summary>
+        <span>Aperçu JSON actif</span>
+        <span class="collapse-hint">Cliquer pour déplier / replier</span>
+      </summary>
+      <div class="actions" style="margin-top:0; margin-bottom:10px;">
+        <button type="button" id="btnCopyJson">Copier le JSON</button>
+        <button type="button" id="btnDownloadJson">Télécharger le fichier</button>
       </div>
+      <pre id="jsonPreview">{}</pre>
+    </details>
+  </main>
+</div>
 
-      <nav class="tabs" aria-label="Fichiers JSON">
-        <button type="button" class="tab-btn active" data-tab="manual">manual.json</button>
-        <button type="button" class="tab-btn" data-tab="reviews">reviews.json</button>
-        <button type="button" class="tab-btn" data-tab="tarifs">tarifs.json</button>
-      </nav>
+<script>
+  const PASSWORD_SHA256 = "930dedfd59f93b5b8f3de83f0c824c5978e9991dd2e212e60efcb351b62efcce";
 
-      <!-- Onglet manual.json -->
-      <section id="tab-manual" class="card tab-panel">
-        <h2>Ouvertures manuelles (manual.json)</h2>
-        <p class="sub">Plages rouvertes sur le site malgré les blocages Airbnb.</p>
-        <div id="manualList"></div>
-        <div class="actions">
-          <button type="button" id="addManualRow">+ Ajouter une plage</button>
-          <button type="button" class="primary" id="saveManual">Committer manual.json</button>
-        </div>
-      </section>
+  const KEYS = {
+    unlocked: "bjl_admin_unlocked",
+    token: "bjl_gh_token",
+    cfg: "bjl_gh_cfg"
+  };
 
-      <!-- Onglet reviews.json -->
-      <section id="tab-reviews" class="card tab-panel hidden">
-        <h2>Avis clients (reviews.json)</h2>
-        <div class="grid">
-          <label>
-            Date mise à jour (YYYY-MM-DD)
-            <input type="date" id="revUpdated" />
-          </label>
-          <label>
-            Note globale
-            <input type="number" step="0.01" min="1" max="5" id="revRating" />
-          </label>
-          <label>
-            Nombre d'avis (count)
-            <input type="number" step="1" min="0" id="revCount" />
-          </label>
-          <label>
-            Tags (séparés par virgule)
-            <input type="text" id="revTags" />
-          </label>
-        </div>
-        <div class="grid" style="margin-top:12px;">
-          <label>
-            Google note
-            <input type="number" step="0.1" min="1" max="5" id="revGoogleRating" />
-          </label>
-          <label>
-            Google count
-            <input type="number" step="1" min="0" id="revGoogleCount" />
-          </label>
-          <label>
-            URL avis Google
-            <input type="url" id="revGoogleUrl" />
-          </label>
-        </div>
+  const JSON_TABS = ["bookings", "manual", "reviews", "tarifs"];
 
-        <h3 style="margin-top:20px;">Témoignages</h3>
-        <div id="testimonialsList"></div>
-        <div class="actions">
-          <button type="button" id="addTestimonial">+ Ajouter un avis</button>
-          <button type="button" class="primary" id="saveReviews">Committer reviews.json</button>
-        </div>
-      </section>
+  const state = {
+    activeTab: "bookings",
+    files: {
+      bookings: { data: { bookings: [] }, sha: null },
+      manual: { data: { bookings: [], open: [] }, sha: null },
+      reviews: { data: { updated: "", rating: 5, count: 0, google: { rating: 5, count: 0, url: "" }, tags: [], testimonials: [] }, sha: null },
+      tarifs: { data: { nightly: 56, periods: [], taxPerPersonNight: 2, cleaning: 0, minNights: 1 }, sha: null }
+    }
+  };
 
-      <!-- Onglet tarifs.json -->
-      <section id="tab-tarifs" class="card tab-panel hidden">
-        <h2>Tarifs (tarifs.json)</h2>
-        <div class="grid">
-          <label>
-            Tarif nuitée de base (€)
-            <input type="number" step="1" min="0" id="tarNightly" />
-          </label>
-          <label>
-            Taxe / pers. / nuit (€)
-            <input type="number" step="0.5" min="0" id="tarTax" />
-          </label>
-          <label>
-            Frais ménage (€)
-            <input type="number" step="1" min="0" id="tarCleaning" />
-          </label>
-          <label>
-            Minimum de nuits
-            <input type="number" step="1" min="1" id="tarMinNights" />
-          </label>
-        </div>
+  const $ = (id) => document.getElementById(id);
 
-        <h3 style="margin-top:20px;">Périodes tarifaires</h3>
-        <div id="periodsList"></div>
-        <div class="actions">
-          <button type="button" id="addPeriod">+ Ajouter une période</button>
-          <button type="button" class="primary" id="saveTarifs">Committer tarifs.json</button>
-        </div>
-      </section>
+  function showStatus(msg, isError = false) {
+    const box = $("statusBox");
+    box.textContent = msg;
+    box.className = "status " + (isError ? "err" : "ok");
+  }
 
-      <!-- Aperçu & secours -->
-      <section class="card">
-        <h2>Aperçu JSON actif</h2>
-        <div class="actions" style="margin-top:0; margin-bottom:10px;">
-          <button type="button" id="btnCopyJson">Copier le JSON</button>
-          <button type="button" id="btnDownloadJson">Télécharger le fichier</button>
-        </div>
-        <pre id="jsonPreview">{}</pre>
-      </section>
-    </main>
-  </div>
+  async function sha256Hex(str) {
+    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+  }
 
-  <script>
-    // Remplacer par le SHA-256 (hex minuscule) de votre mot de passe
-const PASSWORD_SHA256 = "930dedfd59f93b5b8f3de83f0c824c5978e9991dd2e212e60efcb351b62efcce";
-    
-    const KEYS = {
-      unlocked: "bjl_admin_unlocked",
-      token: "bjl_gh_token",
-      cfg: "bjl_gh_cfg"
+  function getCfg() {
+    const saved = JSON.parse(localStorage.getItem(KEYS.cfg) || "{}");
+    return {
+      repo: saved.repo || "vincentmorgera/bo-jadin-la",
+      branch: saved.branch || "main",
+      basePath: (saved.basePath || "public/data").replace(/^\/+|\/+$/g, "")
     };
+  }
 
-    const state = {
-      activeTab: "manual",
-      files: {
-        manual: { data: { bookings: [], open: [] }, sha: null },
-        reviews: { data: { updated: "", rating: 5, count: 0, google: { rating: 5, count: 0, url: "" }, tags: [], testimonials: [] }, sha: null },
-        tarifs: { data: { nightly: 56, periods: [], taxPerPersonNight: 2, cleaning: 0, minNights: 1 }, sha: null }
+  function getToken() {
+    return localStorage.getItem(KEYS.token) || "";
+  }
+
+  function filePath(name) {
+    const { basePath } = getCfg();
+    return `${basePath}/${name}.json`;
+  }
+
+  function normalizeBookingsPayload(raw) {
+    if (Array.isArray(raw)) return raw;
+    if (raw && Array.isArray(raw.bookings)) return raw.bookings;
+    return [];
+  }
+
+  async function ghGetFile(name) {
+    const { repo, branch } = getCfg();
+    const token = getToken();
+    const path = filePath(name);
+    const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}?ref=${encodeURIComponent(branch)}`, {
+      headers: {
+        Accept: "application/vnd.github+json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
       }
-    };
+    });
+    if (!res.ok) throw new Error(`Lecture ${path} impossible (${res.status})`);
+    const json = await res.json();
+    const decoded = decodeURIComponent(escape(atob(json.content.replace(/\n/g, ""))));
+    return { data: JSON.parse(decoded), sha: json.sha };
+  }
 
-    const $ = (id) => document.getElementById(id);
+  async function ghPutFile(name, dataObj, commitMessage) {
+    const { repo, branch } = getCfg();
+    const token = getToken();
+    if (!token) throw new Error("Token GitHub manquant sur cet appareil.");
+    const path = filePath(name);
 
-    function showStatus(msg, isError = false) {
-      const box = $("statusBox");
-      box.textContent = msg;
-      box.className = "status " + (isError ? "err" : "ok");
+    const latest = await ghGetFile(name);
+    const formatted = JSON.stringify(dataObj, null, 2) + "\n";
+    const base64 = btoa(unescape(encodeURIComponent(formatted)));
+
+    const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+      method: "PUT",
+      headers: {
+        Accept: "application/vnd.github+json",
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: commitMessage,
+        content: base64,
+        sha: latest.sha,
+        branch
+      })
+    });
+
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      throw new Error(`Écriture ${path} refusée (${res.status}) : ${errBody.message || ""}`);
     }
+    const updated = await ghGetFile(name);
+    state.files[name] = updated;
+    return updated;
+  }
 
-    async function sha256Hex(str) {
-      const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
-      return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+  function validateDateRange(from, to, label) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(from) || !/^\d{4}-\d{2}-\d{2}$/.test(to)) {
+      throw new Error(`${label} : dates attendues au format AAAA-MM-JJ.`);
     }
-
-    function getCfg() {
-      const saved = JSON.parse(localStorage.getItem(KEYS.cfg) || "{}");
-      return {
-        repo: saved.repo || "vince/bo-jadin-la",
-        branch: saved.branch || "main",
-        basePath: (saved.basePath || "public/data").replace(/^\/+|\/+$/g, "")
-      };
+    if (to < from) {
+      throw new Error(`${label} : la date de fin (${to}) est antérieure au début (${from}).`);
     }
+  }
 
-    function getToken() {
-      return localStorage.getItem(KEYS.token) || "";
-    }
+  function renderBookings() {
+    const list = $("bookingsList");
+    list.innerHTML = "";
+    const items = normalizeBookingsPayload(state.files.bookings.data);
+    items.forEach((item, idx) => {
+      const div = document.createElement("div");
+      div.className = "row-item";
+      div.innerHTML = `
+          <div class="row-head">
+            <span>Réservation #${idx + 1}</span>
+            <button type="button" class="danger" data-del-booking="${idx}">Supprimer</button>
+          </div>
+          <div class="grid">
+            <label>Arrivée <input type="date" value="${item.from || item.start || ""}" data-b-from="${idx}" /></label>
+            <label>Départ <input type="date" value="${item.to || item.end || ""}" data-b-to="${idx}" /></label>
+            <label>Source / Note <input type="text" value="${(item.note || item.source || "").replace(/"/g, "&quot;")}" data-b-note="${idx}" /></label>
+          </div>
+        `;
+      list.appendChild(div);
+    });
+    updatePreview();
+  }
 
-    function filePath(name) {
-      const { basePath } = getCfg();
-      return `${basePath}/${name}.json`;
-    }
+  function collectBookings() {
+    const bookings = [];
+    document.querySelectorAll("[data-b-from]").forEach((el) => {
+      const idx = Number(el.dataset.bFrom);
+      const from = el.value.trim();
+      const to = document.querySelector(`[data-b-to="${idx}"]`).value.trim();
+      const note = document.querySelector(`[data-b-note="${idx}"]`).value.trim();
+      validateDateRange(from, to, `Réservation #${idx + 1}`);
+      const entry = { from, to };
+      if (note) entry.note = note;
+      bookings.push(entry);
+    });
+    return Array.isArray(state.files.bookings.data) ? bookings : { ...state.files.bookings.data, bookings };
+  }
 
-    async function ghGetFile(name) {
-      const { repo, branch } = getCfg();
-      const token = getToken();
-      const path = filePath(name);
-      const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}?ref=${encodeURIComponent(branch)}`, {
-        headers: {
-          Accept: "application/vnd.github+json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        }
-      });
-      if (!res.ok) throw new Error(`Lecture ${path} impossible (${res.status})`);
-      const json = await res.json();
-      const decoded = decodeURIComponent(escape(atob(json.content.replace(/\n/g, ""))));
-      return { data: JSON.parse(decoded), sha: json.sha };
-    }
-
-    async function ghPutFile(name, dataObj, commitMessage) {
-      const { repo, branch } = getCfg();
-      const token = getToken();
-      if (!token) throw new Error("Token GitHub manquant sur cet appareil.");
-      const path = filePath(name);
-
-      // Toujours relire le sha courant juste avant écriture
-      const latest = await ghGetFile(name);
-      const formatted = JSON.stringify(dataObj, null, 2) + "\n";
-      const base64 = btoa(unescape(encodeURIComponent(formatted)));
-
-      const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-        method: "PUT",
-        headers: {
-          Accept: "application/vnd.github+json",
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          message: commitMessage,
-          content: base64,
-          sha: latest.sha,
-          branch
-        })
-      });
-
-      if (!res.ok) {
-        const errBody = await res.json().catch(() => ({}));
-        throw new Error(`Écriture ${path} refusée (${res.status}) : ${errBody.message || ""}`);
-      }
-      const updated = await ghGetFile(name);
-      state.files[name] = updated;
-      return updated;
-    }
-
-    function validateDateRange(from, to, label) {
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(from) || !/^\d{4}-\d{2}-\d{2}$/.test(to)) {
-        throw new Error(`${label} : dates attendues au format AAAA-MM-JJ.`);
-      }
-      if (to < from) {
-        throw new Error(`${label} : la date de fin (${to}) est antérieure au début (${from}).`);
-      }
-    }
-
-    function renderManual() {
-      const list = $("manualList");
-      list.innerHTML = "";
-      const items = state.files.manual.data.open || [];
-      items.forEach((item, idx) => {
-        const div = document.createElement("div");
-        div.className = "row-item";
-        div.innerHTML = `
+  function renderManual() {
+    const list = $("manualList");
+    list.innerHTML = "";
+    const items = state.files.manual.data.open || [];
+    items.forEach((item, idx) => {
+      const div = document.createElement("div");
+      div.className = "row-item";
+      div.innerHTML = `
           <div class="row-head">
             <span>Ouverture #${idx + 1}</span>
             <button type="button" class="danger" data-del-manual="${idx}">Supprimer</button>
@@ -431,43 +520,43 @@ const PASSWORD_SHA256 = "930dedfd59f93b5b8f3de83f0c824c5978e9991dd2e212e60efcb35
             <label>Note <input type="text" value="${(item.note || "").replace(/"/g, "&quot;")}" data-m-note="${idx}" /></label>
           </div>
         `;
-        list.appendChild(div);
-      });
-      updatePreview();
-    }
+      list.appendChild(div);
+    });
+    updatePreview();
+  }
 
-    function collectManual() {
-      const open = [];
-      document.querySelectorAll("[data-m-from]").forEach((el) => {
-        const idx = Number(el.dataset.mFrom);
-        const from = el.value.trim();
-        const to = document.querySelector(`[data-m-to="${idx}"]`).value.trim();
-        const note = document.querySelector(`[data-m-note="${idx}"]`).value.trim();
-        validateDateRange(from, to, `Ouverture #${idx + 1}`);
-        open.push({ from, to, note });
-      });
-      return {
-        bookings: Array.isArray(state.files.manual.data.bookings) ? state.files.manual.data.bookings : [],
-        open
-      };
-    }
+  function collectManual() {
+    const open = [];
+    document.querySelectorAll("[data-m-from]").forEach((el) => {
+      const idx = Number(el.dataset.mFrom);
+      const from = el.value.trim();
+      const to = document.querySelector(`[data-m-to="${idx}"]`).value.trim();
+      const note = document.querySelector(`[data-m-note="${idx}"]`).value.trim();
+      validateDateRange(from, to, `Ouverture #${idx + 1}`);
+      open.push({ from, to, note });
+    });
+    return {
+      bookings: Array.isArray(state.files.manual.data.bookings) ? state.files.manual.data.bookings : [],
+      open
+    };
+  }
 
-    function renderReviews() {
-      const r = state.files.reviews.data;
-      $("revUpdated").value = r.updated || "";
-      $("revRating").value = r.rating ?? 5;
-      $("revCount").value = r.count ?? 0;
-      $("revTags").value = Array.isArray(r.tags) ? r.tags.join(", ") : "";
-      $("revGoogleRating").value = r.google?.rating ?? 5;
-      $("revGoogleCount").value = r.google?.count ?? 0;
-      $("revGoogleUrl").value = r.google?.url || "";
+  function renderReviews() {
+    const r = state.files.reviews.data;
+    $("revUpdated").value = r.updated || "";
+    $("revRating").value = r.rating ?? 5;
+    $("revCount").value = r.count ?? 0;
+    $("revTags").value = Array.isArray(r.tags) ? r.tags.join(", ") : "";
+    $("revGoogleRating").value = r.google?.rating ?? 5;
+    $("revGoogleCount").value = r.google?.count ?? 0;
+    $("revGoogleUrl").value = r.google?.url || "";
 
-      const list = $("testimonialsList");
-      list.innerHTML = "";
-      (r.testimonials || []).forEach((t, idx) => {
-        const div = document.createElement("div");
-        div.className = "row-item";
-        div.innerHTML = `
+    const list = $("testimonialsList");
+    list.innerHTML = "";
+    (r.testimonials || []).forEach((t, idx) => {
+      const div = document.createElement("div");
+      div.className = "row-item";
+      div.innerHTML = `
           <div class="row-head">
             <span>Avis #${idx + 1} — ${t.author || "Anonyme"} (${t.date || ""})</span>
             <button type="button" class="danger" data-del-rev="${idx}">Supprimer</button>
@@ -480,55 +569,55 @@ const PASSWORD_SHA256 = "930dedfd59f93b5b8f3de83f0c824c5978e9991dd2e212e60efcb35
           </div>
           <label style="margin-top:10px;">Commentaire <textarea data-t-text="${idx}">${t.text || ""}</textarea></label>
         `;
-        list.appendChild(div);
-      });
-      updatePreview();
-    }
+      list.appendChild(div);
+    });
+    updatePreview();
+  }
 
-    function collectReviews() {
-      const testimonials = [];
-      document.querySelectorAll("[data-t-author]").forEach((el) => {
-        const idx = Number(el.dataset.tAuthor);
-        const author = el.value.trim();
-        const date = document.querySelector(`[data-t-date="${idx}"]`).value.trim();
-        const stars = Number(document.querySelector(`[data-t-stars="${idx}"]`).value);
-        const source = document.querySelector(`[data-t-source="${idx}"]`).value.trim();
-        const text = document.querySelector(`[data-t-text="${idx}"]`).value.trim();
-        if (!author || !text) throw new Error(`Avis #${idx + 1} : auteur et commentaire requis.`);
-        const obj = { text, author, date, stars };
-        if (source) obj.source = source;
-        testimonials.push(obj);
-      });
+  function collectReviews() {
+    const testimonials = [];
+    document.querySelectorAll("[data-t-author]").forEach((el) => {
+      const idx = Number(el.dataset.tAuthor);
+      const author = el.value.trim();
+      const date = document.querySelector(`[data-t-date="${idx}"]`).value.trim();
+      const stars = Number(document.querySelector(`[data-t-stars="${idx}"]`).value);
+      const source = document.querySelector(`[data-t-source="${idx}"]`).value.trim();
+      const text = document.querySelector(`[data-t-text="${idx}"]`).value.trim();
+      if (!author || !text) throw new Error(`Avis #${idx + 1} : auteur et commentaire requis.`);
+      const obj = { text, author, date, stars };
+      if (source) obj.source = source;
+      testimonials.push(obj);
+    });
 
-      const current = state.files.reviews.data;
-      return {
-        ...current,
-        updated: $("revUpdated").value.trim() || new Date().toISOString().slice(0, 10),
-        rating: Number($("revRating").value),
-        count: Number($("revCount").value),
-        google: {
-          rating: Number($("revGoogleRating").value),
-          count: Number($("revGoogleCount").value),
-          url: $("revGoogleUrl").value.trim()
-        },
-        tags: $("revTags").value.split(",").map((s) => s.trim()).filter(Boolean),
-        testimonials
-      };
-    }
+    const current = state.files.reviews.data;
+    return {
+      ...current,
+      updated: $("revUpdated").value.trim() || new Date().toISOString().slice(0, 10),
+      rating: Number($("revRating").value),
+      count: Number($("revCount").value),
+      google: {
+        rating: Number($("revGoogleRating").value),
+        count: Number($("revGoogleCount").value),
+        url: $("revGoogleUrl").value.trim()
+      },
+      tags: $("revTags").value.split(",").map((s) => s.trim()).filter(Boolean),
+      testimonials
+    };
+  }
 
-    function renderTarifs() {
-      const t = state.files.tarifs.data;
-      $("tarNightly").value = t.nightly ?? 56;
-      $("tarTax").value = t.taxPerPersonNight ?? 2;
-      $("tarCleaning").value = t.cleaning ?? 0;
-      $("tarMinNights").value = t.minNights ?? 1;
+  function renderTarifs() {
+    const t = state.files.tarifs.data;
+    $("tarNightly").value = t.nightly ?? 56;
+    $("tarTax").value = t.taxPerPersonNight ?? 2;
+    $("tarCleaning").value = t.cleaning ?? 0;
+    $("tarMinNights").value = t.minNights ?? 1;
 
-      const list = $("periodsList");
-      list.innerHTML = "";
-      (t.periods || []).forEach((p, idx) => {
-        const div = document.createElement("div");
-        div.className = "row-item";
-        div.innerHTML = `
+    const list = $("periodsList");
+    list.innerHTML = "";
+    (t.periods || []).forEach((p, idx) => {
+      const div = document.createElement("div");
+      div.className = "row-item";
+      div.innerHTML = `
           <div class="row-head">
             <span>Période #${idx + 1}</span>
             <button type="button" class="danger" data-del-period="${idx}">Supprimer</button>
@@ -539,200 +628,250 @@ const PASSWORD_SHA256 = "930dedfd59f93b5b8f3de83f0c824c5978e9991dd2e212e60efcb35
             <label>Nuitée (€) <input type="number" min="1" step="1" value="${p.nightly ?? 56}" data-p-nightly="${idx}" /></label>
           </div>
         `;
-        list.appendChild(div);
-      });
-      updatePreview();
+      list.appendChild(div);
+    });
+    updatePreview();
+  }
+
+  function collectTarifs() {
+    const periods = [];
+    document.querySelectorAll("[data-p-from]").forEach((el) => {
+      const idx = Number(el.dataset.pFrom);
+      const from = el.value.trim();
+      const to = document.querySelector(`[data-p-to="${idx}"]`).value.trim();
+      const nightly = Number(document.querySelector(`[data-p-nightly="${idx}"]`).value);
+      validateDateRange(from, to, `Période #${idx + 1}`);
+      if (!Number.isFinite(nightly) || nightly <= 0) {
+        throw new Error(`Période #${idx + 1} : tarif nuitée invalide.`);
+      }
+      periods.push({ from, to, nightly });
+    });
+
+    return {
+      nightly: Number($("tarNightly").value),
+      periods,
+      taxPerPersonNight: Number($("tarTax").value),
+      cleaning: Number($("tarCleaning").value),
+      minNights: Number($("tarMinNights").value)
+    };
+  }
+
+  function updatePreview() {
+    const details = $("jsonDetails");
+    if (!details || !details.open) return;
+    if (state.activeTab === "params") {
+      $("jsonPreview").textContent = JSON.stringify(getCfg(), null, 2);
+      return;
     }
+    const currentData = state.files[state.activeTab]?.data ?? {};
+    $("jsonPreview").textContent = JSON.stringify(currentData, null, 2);
+  }
 
-    function collectTarifs() {
-      const periods = [];
-      document.querySelectorAll("[data-p-from]").forEach((el) => {
-        const idx = Number(el.dataset.pFrom);
-        const from = el.value.trim();
-        const to = document.querySelector(`[data-p-to="${idx}"]`).value.trim();
-        const nightly = Number(document.querySelector(`[data-p-nightly="${idx}"]`).value);
-        validateDateRange(from, to, `Période #${idx + 1}`);
-        if (!Number.isFinite(nightly) || nightly <= 0) {
-          throw new Error(`Période #${idx + 1} : tarif nuitée invalide.`);
-        }
-        periods.push({ from, to, nightly });
-      });
-
-      return {
-        nightly: Number($("tarNightly").value),
-        periods,
-        taxPerPersonNight: Number($("tarTax").value),
-        cleaning: Number($("tarCleaning").value),
-        minNights: Number($("tarMinNights").value)
-      };
-    }
-
-    function updatePreview() {
-      const currentData = state.files[state.activeTab]?.data ?? {};
-      $("jsonPreview").textContent = JSON.stringify(currentData, null, 2);
-    }
-
-    async function loadAllFiles() {
-      try {
-        showStatus("Chargement des fichiers JSON depuis GitHub...");
-        for (const name of ["manual", "reviews", "tarifs"]) {
+  async function loadAllFiles() {
+    try {
+      showStatus("Chargement des fichiers JSON depuis GitHub...");
+      for (const name of JSON_TABS) {
+        try {
           state.files[name] = await ghGetFile(name);
+        } catch (err) {
+          if (name === "bookings") {
+            state.files.bookings = { data: { bookings: [] }, sha: null };
+          } else {
+            throw err;
+          }
         }
-        renderManual();
-        renderReviews();
-        renderTarifs();
-        showStatus("Fichiers chargés depuis GitHub.");
-      } catch (err) {
-        showStatus(err.message, true);
       }
-    }
-
-    function setAuthenticated(isAuth) {
-      $("loginView").classList.toggle("hidden", isAuth);
-      $("appView").classList.toggle("hidden", !isAuth);
-      $("topActions").classList.toggle("hidden", !isAuth);
-    }
-
-    $("loginForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const pwd = $("loginPassword").value;
-      const tokenInput = $("loginToken").value.trim();
-      const hash = await sha256Hex(pwd);
-
-      if (hash !== PASSWORD_SHA256) {
-        showStatus("Mot de passe incorrect ou hash non configuré.", true);
-        return;
-      }
-      if (tokenInput) localStorage.setItem(KEYS.token, tokenInput);
-      localStorage.setItem(KEYS.unlocked, "1");
-      $("loginPassword").value = "";
-      setAuthenticated(true);
-      await loadAllFiles();
-    });
-
-    $("btnLock").addEventListener("click", () => {
-      localStorage.removeItem(KEYS.unlocked);
-      setAuthenticated(false);
-    });
-
-    $("btnSaveCfg").addEventListener("click", () => {
-      localStorage.setItem(KEYS.cfg, JSON.stringify({
-        repo: $("cfgRepo").value.trim(),
-        branch: $("cfgBranch").value.trim(),
-        basePath: $("cfgBasePath").value.trim()
-      }));
-      showStatus("Réglages enregistrés sur cet appareil.");
-    });
-
-    document.querySelectorAll(".tab-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        state.activeTab = btn.dataset.tab;
-        document.querySelectorAll(".tab-btn").forEach((b) => b.classList.toggle("active", b === btn));
-        document.querySelectorAll(".tab-panel").forEach((p) => p.classList.toggle("hidden", p.id !== `tab-${state.activeTab}`));
-        updatePreview();
-      });
-    });
-
-    $("addManualRow").addEventListener("click", () => {
-      state.files.manual.data.open.push({ from: "", to: "", note: "" });
+      renderBookings();
       renderManual();
-    });
-
-    $("manualList").addEventListener("click", (e) => {
-      const idx = e.target.dataset.delManual;
-      if (idx !== undefined) {
-        state.files.manual.data.open.splice(Number(idx), 1);
-        renderManual();
-      }
-    });
-
-    $("saveManual").addEventListener("click", async () => {
-      try {
-        const data = collectManual();
-        await ghPutFile("manual", data, "chore(admin): update manual.json");
-        renderManual();
-        showStatus("manual.json committé sur GitHub (déploiement Vercel en cours).");
-      } catch (err) {
-        showStatus(err.message, true);
-      }
-    });
-
-    $("addTestimonial").addEventListener("click", () => {
-      state.files.reviews.data.testimonials.unshift({ text: "", author: "", date: new Date().toISOString().slice(0, 7), stars: 5 });
       renderReviews();
-    });
-
-    $("testimonialsList").addEventListener("click", (e) => {
-      const idx = e.target.dataset.delRev;
-      if (idx !== undefined) {
-        state.files.reviews.data.testimonials.splice(Number(idx), 1);
-        renderReviews();
-      }
-    });
-
-    $("saveReviews").addEventListener("click", async () => {
-      try {
-        const data = collectReviews();
-        await ghPutFile("reviews", data, "chore(admin): update reviews.json");
-        renderReviews();
-        showStatus("reviews.json committé sur GitHub (déploiement Vercel en cours).");
-      } catch (err) {
-        showStatus(err.message, true);
-      }
-    });
-
-    $("addPeriod").addEventListener("click", () => {
-      state.files.tarifs.data.periods.push({ from: "", to: "", nightly: Number($("tarNightly").value) || 56 });
       renderTarifs();
-    });
-
-    $("periodsList").addEventListener("click", (e) => {
-      const idx = e.target.dataset.delPeriod;
-      if (idx !== undefined) {
-        state.files.tarifs.data.periods.splice(Number(idx), 1);
-        renderTarifs();
-      }
-    });
-
-    $("saveTarifs").addEventListener("click", async () => {
-      try {
-        const data = collectTarifs();
-        await ghPutFile("tarifs", data, "chore(admin): update tarifs.json ");
-        renderTarifs();
-        showStatus("tarifs.json committé sur GitHub (déploiement Vercel en cours).");
-      } catch (err) {
-        showStatus(err.message, true);
-      }
-    });
-
-    $("btnReloadAll").addEventListener("click", loadAllFiles);
-
-    $("btnCopyJson").addEventListener("click", async () => {
-      await navigator.clipboard.writeText($("jsonPreview").textContent);
-      showStatus("JSON copié dans le presse-papiers.");
-    });
-
-    $("btnDownloadJson").addEventListener("click", () => {
-      const blob = new Blob([$("jsonPreview").textContent], { type: "application/json" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `${state.activeTab}.json`;
-      a.click();
-      URL.revokeObjectURL(a.href);
-    });
-
-    //  Init
-    const cfg = getCfg();
-    $("cfgRepo").value = cfg.repo;
-    $("cfgBranch").value = cfg.branch;
-    $("cfgBasePath").value = cfg.basePath;
-    if ($("loginToken")) $("loginToken").value = getToken();
-
-    if (localStorage.getItem(KEYS.unlocked) === "1") {
-      setAuthenticated(true);
-      loadAllFiles();
+      showStatus("Fichiers chargés depuis GitHub.");
+    } catch (err) {
+      showStatus(err.message, true);
     }
+  }
 
-  </script>
+  function setAuthenticated(isAuth) {
+    $("loginView").classList.toggle("hidden", isAuth);
+    $("appView").classList.toggle("hidden", !isAuth);
+    $("topActions").classList.toggle("hidden", !isAuth);
+  }
+
+  $("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const pwd = $("loginPassword").value;
+    const tokenInput = $("loginToken").value.trim();
+    const hash = await sha256Hex(pwd);
+
+    if (hash !== PASSWORD_SHA256) {
+      showStatus("Mot de passe incorrect ou hash non configuré.", true);
+      return;
+    }
+    if (tokenInput) localStorage.setItem(KEYS.token, tokenInput);
+    localStorage.setItem(KEYS.unlocked, "1");
+    $("loginPassword").value = "";
+    setAuthenticated(true);
+    await loadAllFiles();
+  });
+
+  $("btnLock").addEventListener("click", () => {
+    localStorage.removeItem(KEYS.unlocked);
+    setAuthenticated(false);
+  });
+
+  $("btnSaveCfg").addEventListener("click", () => {
+    localStorage.setItem(KEYS.cfg, JSON.stringify({
+      repo: $("cfgRepo").value.trim(),
+      branch: $("cfgBranch").value.trim(),
+      basePath: $("cfgBasePath").value.trim()
+    }));
+    updatePreview();
+    showStatus("Réglages enregistrés sur cet appareil.");
+  });
+
+  document.querySelectorAll(".tab-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.activeTab = btn.dataset.tab;
+      document.querySelectorAll(".tab-btn").forEach((b) => b.classList.toggle("active", b === btn));
+      document.querySelectorAll(".tab-panel").forEach((p) => p.classList.toggle("hidden", p.id !== `tab-${state.activeTab}`));
+      updatePreview();
+    });
+  });
+
+  $("addBookingRow").addEventListener("click", () => {
+    if (Array.isArray(state.files.bookings.data)) {
+      state.files.bookings.data.push({ from: "", to: "", note: "" });
+    } else {
+      state.files.bookings.data.bookings = normalizeBookingsPayload(state.files.bookings.data);
+      state.files.bookings.data.bookings.push({ from: "", to: "", note: "" });
+    }
+    renderBookings();
+  });
+
+  $("bookingsList").addEventListener("click", (e) => {
+    const idx = e.target.dataset.delBooking;
+    if (idx !== undefined) {
+      if (Array.isArray(state.files.bookings.data)) {
+        state.files.bookings.data.splice(Number(idx), 1);
+      } else {
+        state.files.bookings.data.bookings.splice(Number(idx), 1);
+      }
+      renderBookings();
+    }
+  });
+
+  $("saveBookings").addEventListener("click", async () => {
+    try {
+      const data = collectBookings();
+      await ghPutFile("bookings", data, "chore(admin): update bookings.json");
+      renderBookings();
+      showStatus("bookings.json committé sur GitHub (déploiement Vercel en cours).");
+    } catch (err) {
+      showStatus(err.message, true);
+    }
+  });
+
+  $("addManualRow").addEventListener("click", () => {
+    state.files.manual.data.open.push({ from: "", to: "", note: "" });
+    renderManual();
+  });
+
+  $("manualList").addEventListener("click", (e) => {
+    const idx = e.target.dataset.delManual;
+    if (idx !== undefined) {
+      state.files.manual.data.open.splice(Number(idx), 1);
+      renderManual();
+    }
+  });
+
+  $("saveManual").addEventListener("click", async () => {
+    try {
+      const data = collectManual();
+      await ghPutFile("manual", data, "chore(admin): update manual.json");
+      renderManual();
+      showStatus("manual.json committé sur GitHub (déploiement Vercel en cours).");
+    } catch (err) {
+      showStatus(err.message, true);
+    }
+  });
+
+  $("addTestimonial").addEventListener("click", () => {
+    state.files.reviews.data.testimonials.unshift({ text: "", author: "", date: new Date().toISOString().slice(0, 7), stars: 5 });
+    renderReviews();
+  });
+
+  $("testimonialsList").addEventListener("click", (e) => {
+    const idx = e.target.dataset.delRev;
+    if (idx !== undefined) {
+      state.files.reviews.data.testimonials.splice(Number(idx), 1);
+      renderReviews();
+    }
+  });
+
+  $("saveReviews").addEventListener("click", async () => {
+    try {
+      const data = collectReviews();
+      await ghPutFile("reviews", data, "chore(admin): update reviews.json");
+      renderReviews();
+      showStatus("reviews.json committé sur GitHub (déploiement Vercel en cours).");
+    } catch (err) {
+      showStatus(err.message, true);
+    }
+  });
+
+  $("addPeriod").addEventListener("click", () => {
+    state.files.tarifs.data.periods.push({ from: "", to: "", nightly: Number($("tarNightly").value) || 56 });
+    renderTarifs();
+  });
+
+  $("periodsList").addEventListener("click", (e) => {
+    const idx = e.target.dataset.delPeriod;
+    if (idx !== undefined) {
+      state.files.tarifs.data.periods.splice(Number(idx), 1);
+      renderTarifs();
+    }
+  });
+
+  $("saveTarifs").addEventListener("click", async () => {
+    try {
+      const data = collectTarifs();
+      await ghPutFile("tarifs", data, "chore(admin): update tarifs.json");
+      renderTarifs();
+      showStatus("tarifs.json committé sur GitHub (déploiement Vercel en cours).");
+    } catch (err) {
+      showStatus(err.message, true);
+    }
+  });
+
+  $("jsonDetails").addEventListener("toggle", updatePreview);
+
+  $("btnReloadAll").addEventListener("click", loadAllFiles);
+
+  $("btnCopyJson").addEventListener("click", async () => {
+    await navigator.clipboard.writeText($("jsonPreview").textContent);
+    showStatus("JSON copié dans le presse-papiers.");
+  });
+
+  $("btnDownloadJson").addEventListener("click", () => {
+    const blob = new Blob([$("jsonPreview").textContent], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `${state.activeTab}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  // Init
+  const cfg = getCfg();
+  $("cfgRepo").value = cfg.repo;
+  $("cfgBranch").value = cfg.branch;
+  $("cfgBasePath").value = cfg.basePath;
+  if ($("loginToken")) $("loginToken").value = getToken();
+
+  if (localStorage.getItem(KEYS.unlocked) === "1") {
+    setAuthenticated(true);
+    loadAllFiles();
+  }
+</script>
 </body>
 </html>
