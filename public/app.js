@@ -293,9 +293,14 @@ document.getElementById("result").addEventListener("click", async e => {
     ...(tel ? {telephone: tel} : {}),
     message,
     website: f("f-hp").value,
-    subject: "Demande de réservation Bò Jadin La"
+    subject: `Demande de réservation de ${f("f-name").value.trim()} du ${fmt(a)} au ${fmt(b)} (site Bò Jadin La)`
   }).catch(() => false);
-  if (ok) { st.textContent = "Demande envoyée ! Vos hôtes vous répondent rapidement par e-mail."; btn.hidden = true; }
+  if (ok) {
+    const r = f("result");
+    r.className = "result";
+    r.innerHTML = '<div style="padding:18px;font-size:1.05rem;line-height:1.5">✅ <b>Merci, votre demande est bien partie !</b><br>Nous reprenons rapidement contact avec vous.</div>';
+    r.scrollIntoView({block: "center", behavior: "smooth"});
+  }
   else { st.textContent = "L'envoi a échoué. Merci de réessayer."; btn.disabled = false; resetCaptcha("captcha-req"); }
 });
 
