@@ -201,6 +201,9 @@ const todayKey = key(new Date());
 const busy = new Set();            // nuits occupées (clé = jour de la nuit)
 const notes = new Map();           // commentaires par nuit (manual.json)
 let view = new Date(); view.setDate(1);
+const MAX_MONTHS_AHEAD = 6;   // dernier mois visible = mois courant + 6
+const minView = new Date(view.getFullYear(), view.getMonth(), 1);
+const maxView = new Date(view.getFullYear(), view.getMonth() + MAX_MONTHS_AHEAD - 1, 1); // 1er mois affiché (2 mois visibles)
 let a = null, b = null;
 
 const nightsFree = (from, to) => { for (let d = parse(from); key(d) < to; d = addDays(d,1)) if (busy.has(key(d))) return false; return true; };
@@ -227,6 +230,8 @@ function renderMonth(first) {
 }
 
 function render() {
+  document.getElementById("prev").disabled = view <= minView;
+  document.getElementById("next").disabled = view >= maxView;
   const m2 = new Date(view.getFullYear(), view.getMonth()+1, 1);
   document.getElementById("months").innerHTML = renderMonth(view) + renderMonth(m2);
   const r = document.getElementById("result");
@@ -268,8 +273,8 @@ document.getElementById("months").addEventListener("click", e => {
     r.innerHTML = "<span>Cette période contient des nuits occupées. Essayez d'autres dates.</span>"; a = isBusy ? null : k; b = null; return; }
   render();
 });
-document.getElementById("prev").onclick = () => { view = new Date(view.getFullYear(), view.getMonth()-1, 1); render(); };
-document.getElementById("next").onclick = () => { view = new Date(view.getFullYear(), view.getMonth()+1, 1); render(); };
+document.getElementById("prev").onclick = () => { if (view > minView) { view = new Date(view.getFullYear(), view.getMonth()-1, 1); render(); } };
+document.getElementById("next").onclick = () => { if (view < maxView) { view = new Date(view.getFullYear(), view.getMonth()+1, 1); render(); } };
 
 document.getElementById("result").addEventListener("change", e => e.target.id === "f-guests" && updateQuote());
 document.getElementById("result").addEventListener("click", async e => {
