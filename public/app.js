@@ -103,7 +103,7 @@ cf.addEventListener("submit", async e => {
   delete raw["h-captcha-response"];
   btn.disabled = true; cs.textContent = "Envoi en cours…";
   const ok = await sendForm({...raw, subject: `Question de ${raw.name} (site Bò Jadin La)`}).catch(() => false);
-  cs.textContent = ok ? "Merci, votre message est bien envoyé. Nous vous répondons rapidement par e-mail." : "L'envoi a échoué. Merci de réessayer dans un instant.";
+  cs.textContent = ok ? "Merci, votre message a bien été envoyé. Nous vous répondons rapidement." : "L'envoi a échoué. Merci de réessayer dans un instant.";
   btn.disabled = false;
   resetCaptcha("captcha-contact");
   if (ok) cf.reset();
